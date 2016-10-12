@@ -4,6 +4,8 @@
       "version": "1.0.1",
       "type": "platform"
     },
+    "NEST": "2.4.6",
+    "Elasticsearch.Net": "2.4.6",    
     "Microsoft.AspNetCore.Mvc": "1.0.1",
     "Microsoft.AspNetCore.Routing": "1.0.1",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0",
