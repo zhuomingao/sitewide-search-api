@@ -31,7 +31,10 @@ namespace NCI.OCPL.Services.SiteWideSearch
         {
             // Add framework services.
             services.AddMvc();
-            services.AddTransient<IElasticClient, ElasticClient>();
+            services.AddTransient<IElasticClient>(p => {
+                //setup Elastic client configuration
+                return new ElasticClient();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
