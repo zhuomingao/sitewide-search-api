@@ -23,11 +23,11 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
             elasticClientMock.Setup(ec => ec.SearchTemplate(
                 It.IsAny<Func<SearchTemplateDescriptor<SiteWideSearchResult>,
                     ISearchTemplateRequest>>()))
-                .Returns(mockResults.Object);
+                .Returns(mockResults.Object)
 
             //Now actually perform our test
             SiteWideSearchController ctrl = new SiteWideSearchController(elasticClientMock.Object);
-
+            ctrl.Get("chicken");
 
             Assert.Equal(4, Add(2, 2));
         }

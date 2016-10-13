@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Nest;
+using Elasticsearch.Net;
 
 namespace NCI.OCPL.Services.SiteWideSearch
 {
@@ -31,7 +32,12 @@ namespace NCI.OCPL.Services.SiteWideSearch
         {
             // Add framework services.
             services.AddMvc();
+
             services.AddTransient<IElasticClient>(p => {
+                List<Uri> uris = new List<Uri>();
+                
+
+                var connectionPool = new SniffingConnectionPool(uris);
                 //setup Elastic client configuration
                 return new ElasticClient();
             });

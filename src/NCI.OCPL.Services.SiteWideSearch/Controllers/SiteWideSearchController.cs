@@ -22,7 +22,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         public SiteWideSearchResults Get(string term)
         {
             var r = _elasticClient.SearchTemplateAsync<SiteWideSearchResult>(sd => sd
-                .Index("")
+                .Index("cgov")
+                .Type("doc")            
             ).Result;
 
             return null;
