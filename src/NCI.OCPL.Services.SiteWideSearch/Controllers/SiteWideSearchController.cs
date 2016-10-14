@@ -21,12 +21,15 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         [HttpGet("{term}")]
         public SiteWideSearchResults Get(string term)
         {
-            var r = _elasticClient.SearchTemplateAsync<SiteWideSearchResult>(sd => sd
+            var response = _elasticClient.SearchTemplate<SiteWideSearchResult>(sd => sd
                 .Index("cgov")
                 .Type("doc")            
-            ).Result;
+            );
 
-            return null;
+            return new SiteWideSearchResults(
+                response.Total,
+                response.Documents
+            );
         }
 
     }
