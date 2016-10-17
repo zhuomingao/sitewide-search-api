@@ -23,8 +23,19 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         {
             var response = _elasticClient.SearchTemplate<SiteWideSearchResult>(sd => sd
                 .Index("cgov")
-                .Type("doc")            
-            );
+                .File("cgov_cgovSearch")
+                .Params(pd => pd
+                    .Add("my_value", term)
+                    .Add("my_size", 10)
+                    .Add("my_from", 0)
+//                    .Add("my_fields", new string[]{
+//                        "id", "url", "metatag-description", "metatag-dcterms-type"
+//                    })
+                    .Add("my_site", "all")
+                )
+            );   
+
+                     
 
             return new SiteWideSearchResults(
                 response.Total,

@@ -22,7 +22,8 @@
     "buildOptions": {
         "copyToOutput": {
             "include": [ "xunit.runner.json", "TestData" ]
-        }
+        },
+        "debugType": "portable"
     },
     "tooling": {
         "defaultNamespace": "NCI.OCPL.Services.SiteWideSearch.Tests"

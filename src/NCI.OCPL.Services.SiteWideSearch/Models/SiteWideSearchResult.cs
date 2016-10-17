@@ -7,7 +7,7 @@ namespace NCI.OCPL.Services.SiteWideSearch
     /// <summary>
     /// Represents a Single Site-Wide Search Result
     /// </summary>
-    [ElasticsearchType(Name = "doc", IdProperty = "ID" )]
+    [ElasticsearchType(Name = "doc", IdProperty = nameof(ID) )]
     public class SiteWideSearchResult
     {
 
@@ -15,18 +15,21 @@ namespace NCI.OCPL.Services.SiteWideSearch
         /// The Backend ID for this item
         /// </summary>
         /// <returns></returns>
+        [String(Name = "id")]
         public string ID { get; set; }
 
         /// <summary>
         /// The title of this item 
         /// </summary>
         /// <returns></returns>
+        [String(Name = "title")]
         public string Title { get; set; }
 
         /// <summary>
         /// The URL for this result
         /// </summary>
         /// <returns></returns>
+        [String(Name = "url")]
         public string URL { get; set; }
 
         /// <summary>

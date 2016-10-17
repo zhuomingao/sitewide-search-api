@@ -7,6 +7,8 @@ using System.Reflection;
 using Elasticsearch.Net;
 using Nest;
 
+using Newtonsoft.Json.Linq;
+
 using Moq;
 using Xunit;
 
@@ -40,18 +42,13 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
     {        
 
         /// <summary>
-        /// This gets a simple mocked search results set as if coming from ES server.  This is good
-        /// for those tests that are testing parameters. 
+        /// Gets an ElasticClient backed by an InMemoryConnection.  This is used to mock the 
+        /// JSON returned by the elastic search so that we test the Nest mappings to our models.
         /// </summary>
+        /// <param name="testFile"></param>
+        /// <param name="requestDataCallback"></param>
         /// <returns></returns>
-        private Mock<ISearchResponse<SiteWideSearchResult>> GetSimpleMockResponse() {
-            Mock<ISearchResponse<SiteWideSearchResult>> mockResults = new Mock<ISearchResponse<SiteWideSearchResult>>();
-
-
-            return mockResults;
-        }
-
-        private IElasticClient GetElasticClient(string testFile, Action<byte[]> requestDataCallback = null) {
+        private IElasticClient GetInMemoryElasticClient(string testFile) {
             
             string assmPath = Path.GetDirectoryName(this.GetType().GetTypeInfo().Assembly.Location);
             
@@ -67,41 +64,87 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
             InMemoryConnection conn = new InMemoryConnection(responseBody);  
 
             var connectionSettings = new ConnectionSettings(pool, conn);
+                        
+            return new ElasticClient(connectionSettings);
+        }
+
+        /// <summary>
+        /// This function mocks the IElasticClient.SearchTemplate method and can be used to capture
+        /// the requests being made to the ElasticSearch servers.
+        /// </summary>
+        /// <param name="requestInspectorCallback">An Action to be called once the IElasticClient.SearchTemplate 
+        /// method has been called.  This should be used to store off the ISearchTemplateRequest for later
+        /// comparison.
+        /// </param>
+        /// <returns></returns>
+        private IElasticClient GetMockedSearchTemplateClient(Action<ISearchTemplateRequest> requestInspectorCallback) {
+
+            Mock<IElasticClient> elasticClientMock = new Mock<IElasticClient>();
             
-            if (requestDataCallback != null)
-                connectionSettings.OnRequestDataCreated(reqData => {
-                    using (var ms = new MemoryStream()) {
-                        reqData.PostData.Write(ms, connectionSettings);
-                        byte[] rawData = ms.ToArray();
+            /// Mock up the Search Template Function
+            elasticClientMock
+                // Handle the condition where this code should run
+                .Setup(
+                    ec => ec.SearchTemplate(
+                        It.IsAny<Func<SearchTemplateDescriptor<SiteWideSearchResult>, ISearchTemplateRequest>>()
+                    )
+                )
+                // Give a callback for the mocked signature.  This will store off the request.
+                // This is a little inside baseball, but the invoking of the anon function below is taken from
+                // how the Nest code will execute the search based on the above mocked call. 
+                // https://github.com/elastic/elasticsearch-net/blob/master/src/Nest/Search/SearchTemplate/ElasticClient-SearchTemplate.cs  
+                .Callback<Func<SearchTemplateDescriptor<SiteWideSearchResult>,ISearchTemplateRequest>>(
+                    sd => {
+                        ISearchTemplateRequest savedTemplateRequest;
+                        savedTemplateRequest = sd?.Invoke(new SearchTemplateDescriptor<SiteWideSearchResult>());
+//throw new Exception(JObject.FromObject(savedTemplateRequest).ToString());
+                        //Call the callback so that the calling function can save the searchrequest
+                        //for comparing once the IElasticClient.SearchTemplate function has executed.                          
+                        if (requestInspectorCallback != null) {
+                            requestInspectorCallback((ISearchTemplateRequest)savedTemplateRequest);
+                        }
+                    }                    
+                )
+                // Return something from our method.
+                .Returns(GetSimpleMockResponse().Object);
 
-                        requestDataCallback(rawData);
+            return elasticClientMock.Object;
+        }
 
-                        //postData.Write(ms, connectionSettings);
-
-                    }
-                    //requestDataCallback
-                });
+        /// <summary>
+        /// This gets a simple mocked search results set as if coming from ES server.  This is good
+        /// for those tests that are testing parameters. 
+        /// </summary>
+        /// <returns></returns>
+        private Mock<ISearchResponse<SiteWideSearchResult>> GetSimpleMockResponse() {
+            Mock<ISearchResponse<SiteWideSearchResult>> mockResults = new Mock<ISearchResponse<SiteWideSearchResult>>();
             
-            ElasticClient client = new ElasticClient(connectionSettings);
+            //Set 1 SearchResult
+            //Set TotalResults
 
-            return client;
+            return mockResults;
         }
 
 
-
-        [Fact]
+        //[Fact]
         /// <summary>
-        /// Test for Get with a single term.
+        /// Test for Breast Cancer term and ensures TotalResults is mapped correctly.
         /// </summary>
-        public void Get_WithTerm_GeneratesCorrectQuery2()
+        // public void Get_WithTerm_HasCorrectTotalResults()
+        // {
+
+        //     string testFile = "CGov.En.BreastCancer.json";
+
+        //     SiteWideSearchController ctrl = new SiteWideSearchController(GetInMemoryElasticClient(testFile));
+        //     SiteWideSearchResults results = ctrl.Get("breast cancer");
+
+        //     Assert.Equal(12524, results.TotalResults);
+        // }
+
+        public void Get_WithTerm_HasCorrectFirstResult() 
         {
-
-            string testFile = "CGov.En.BreastCancer.json";
-
-            SiteWideSearchController ctrl = new SiteWideSearchController(GetElasticClient(testFile));
-            SiteWideSearchResults results = ctrl.Get("breast cancer");
-
-            Assert.Equal(12524, results.TotalResults);
+            
+            
         }
 
         [Fact]
@@ -110,22 +153,35 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
         /// </summary>
         public void Get_WithTerm_GeneratesCorrectQuery()
         {
+            string term = "Breast Cancer";
 
-            string testFile = "CGov.En.BreastCancer.json";
+            ISearchTemplateRequest actualReq = null;
 
-            IElasticClient client = GetElasticClient(testFile, requestData => {
-                //PostData.Type == PostData.Serializable
-                throw new Exception(requestData.Length.ToString());
-                throw new Exception(System.Text.Encoding.UTF8.GetString(requestData));
-                //Console.WriteLine(callDetails);
+            //Setup the client with the request handler callback to be executed later.
+            IElasticClient client = GetMockedSearchTemplateClient(req => actualReq = req);
+
+
+            SiteWideSearchController controller = new SiteWideSearchController(client);
+            controller.Get(term); //NOTE: this is when actualReq will get set.
+
+            SearchTemplateRequest<SiteWideSearchResult> expReq = new SearchTemplateRequest<SiteWideSearchResult>("cgov"){
+                File = "cgov_cgovSearch"                
+            };
+
+            expReq.Params = new Dictionary<string, object>();
+            expReq.Params.Add("my_value", term);
+            expReq.Params.Add("my_size", 10);
+            expReq.Params.Add("my_from", 0);
+            expReq.Params.Add("my_fields", new string[]{
+                "id", "url", "metatag-description", "metatag-dcterms-type"
             });
+            expReq.Params.Add("my_site", "all");
 
-            SiteWideSearchController ctrl = new SiteWideSearchController(client);
-            SiteWideSearchResults results = ctrl.Get("breast cancer");
-            
-
-
-
+            Assert.Equal(
+                expReq, 
+                actualReq,
+                new SearchTemplateRequestComparer()
+            );
 
 
             /*
@@ -168,6 +224,29 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
         [Fact]
         public void Get_EmptyTerm_ReturnsError(){
 
+        }
+
+
+        public class SearchTemplateRequestComparer : IEqualityComparer<ISearchTemplateRequest>
+        {
+            public bool Equals(ISearchTemplateRequest x, ISearchTemplateRequest y)
+            {
+
+//                throw new Exception(JObject.FromObject(x).ToString());
+
+                bool isEqual = 
+                    x.Id == y.Id &&
+                    x.File == y.File &&                    
+                    x.Template == y.Template;
+
+
+                return isEqual;
+            }
+
+            public int GetHashCode(ISearchTemplateRequest obj)
+            {
+                throw new NotImplementedException();
+            }
         }
 
     }

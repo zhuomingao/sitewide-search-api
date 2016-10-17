@@ -35,11 +35,13 @@ namespace NCI.OCPL.Services.SiteWideSearch
 
             services.AddTransient<IElasticClient>(p => {
                 List<Uri> uris = new List<Uri>();
-                
+                uris.Add(new Uri("http://localhost:9299"));
 
                 var connectionPool = new SniffingConnectionPool(uris);
-                //setup Elastic client configuration
-                return new ElasticClient();
+                
+                ConnectionSettings settings = new ConnectionSettings(connectionPool);                
+
+                return new ElasticClient(settings);
             });
         }
 
