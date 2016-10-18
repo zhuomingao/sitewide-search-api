@@ -36,15 +36,17 @@ namespace NCI.OCPL.Services.SiteWideSearch
             services.AddMvc();
 
             services.AddTransient<IElasticClient>(p => {
-                // List<Uri> uris = new List<Uri>();
-                // uris.Add(new Uri("http://localhost:9299"));
-
-                // var connectionPool = new SniffingConnectionPool(uris);
+                List<Uri> uris = new List<Uri>();
+                string servers = Environment.GetEnvironmentVariable("ASPNETCORE_SERVERS");
                 
-                // ConnectionSettings settings = new ConnectionSettings(connectionPool);                
 
-                return new ElasticClient();
-                //return new ElasticClient(settings);
+                uris.Add(new Uri(servers));
+
+                var connectionPool = new SniffingConnectionPool(uris);
+                
+                ConnectionSettings settings = new ConnectionSettings(connectionPool);                
+
+                return new ElasticClient(settings);
             });
         }
 
