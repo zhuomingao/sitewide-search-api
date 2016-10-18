@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Nest;
 
@@ -12,15 +14,22 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
     public class SiteWideSearchController : Controller
     {
         private readonly IElasticClient _elasticClient;
+        private readonly ILogger<SiteWideSearchController> _logger;
 
-        public SiteWideSearchController(IElasticClient elasticClient) {
+        public SiteWideSearchController(IElasticClient elasticClient, ILogger<SiteWideSearchController> logger)
+        {
             _elasticClient = elasticClient;
+            _logger = logger;
         }
 
         // GET api/values/5
         [HttpGet("{term}")]
-        public SiteWideSearchResults Get(string term)
+        public SiteWideSearchResults Get(string term, int pagenum = 1)
         {
+
+            _logger.LogInformation("Search Request -- Term: {0}, Page{1} ", term, pagenum);
+            
+            //thios Can throw exception
             var response = _elasticClient.SearchTemplate<SiteWideSearchResult>(sd => sd
                 .Index("cgov")
                 .File("cgov_cgovSearch")
@@ -35,12 +44,16 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
                 )
             );   
 
-                     
+            if (response.IsValid) {
+                return new SiteWideSearchResults(
+                    response.Total,
+                    response.Documents
+                );
 
-            return new SiteWideSearchResults(
-                response.Total,
-                response.Documents
-            );
+            } else {
+                throw new APIErrorException(500, "Error connecting to search servers");
+            }
+
         }
 
     }
