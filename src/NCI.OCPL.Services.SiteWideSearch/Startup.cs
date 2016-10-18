@@ -65,9 +65,11 @@ namespace NCI.OCPL.Services.SiteWideSearch
                     {
                         var ex = error.Error;
 
+                        //Unhandled exceptions may not be sanitized, so we will not
+                        //display the issue.
                         string message = ex.GetType().ToString();
 
-                        //Our own exceptions should be sanitized enough.
+                        //Our own exceptions should be sanitized enough.                        
                         if (ex is APIErrorException) {
                             context.Response.StatusCode = ((APIErrorException)ex).HttpStatusCode;
                             message = ex.Message;
