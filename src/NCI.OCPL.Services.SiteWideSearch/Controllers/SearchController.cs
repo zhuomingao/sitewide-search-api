@@ -10,13 +10,13 @@ using Nest;
 
 namespace NCI.OCPL.Services.SiteWideSearch.Controllers
 {
-    [Route("api/[controller]")]
-    public class SiteWideSearchController : Controller
+    [Route("[controller]")]
+    public class SearchController : Controller
     {
         private readonly IElasticClient _elasticClient;
-        private readonly ILogger<SiteWideSearchController> _logger;
+        private readonly ILogger<SearchController> _logger;
 
-        public SiteWideSearchController(IElasticClient elasticClient, ILogger<SiteWideSearchController> logger)
+        public SearchController(IElasticClient elasticClient, ILogger<SearchController> logger)
         {
             _elasticClient = elasticClient;
             _logger = logger;

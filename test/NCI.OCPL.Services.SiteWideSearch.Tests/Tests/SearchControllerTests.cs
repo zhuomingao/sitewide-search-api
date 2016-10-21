@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
+using Microsoft.Extensions.Logging.Testing;
+
 using Elasticsearch.Net;
 using Nest;
 
@@ -19,9 +21,9 @@ using NCI.OCPL.Services.SiteWideSearch.Controllers;
 namespace NCI.OCPL.Services.SiteWideSearch.Tests
 {
     /// <summary>
-    /// Defines Tests for the SiteWideSearchController class
+    /// Defines Tests for the SearchController class
     /// <remarks>
-    /// The SiteWideSearchController class requires an IElasticClient, which is how
+    /// The SearchController class requires an IElasticClient, which is how
     /// the controller queries an ElasticSearch server.  As these are unit tests, we
     /// will not be connecting to a ES server.  So we are using the Moq framework for
     /// mocking up the methods in an IElasticClient.
@@ -38,7 +40,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
     /// funky looking.            
     /// </remarks>
     /// </summary>
-    public class SiteWideSearchControllerTests
+    public class SearchControllerTests
     {        
 
         /// <summary>
@@ -126,20 +128,24 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
         }
 
 
-        //[Fact]
+        [Fact]
         /// <summary>
         /// Test for Breast Cancer term and ensures TotalResults is mapped correctly.
         /// </summary>
-        // public void Get_WithTerm_HasCorrectTotalResults()
-        // {
+        public void Get_WithTerm_HasCorrectTotalResults()
+        {
 
-        //     string testFile = "CGov.En.BreastCancer.json";
+            string testFile = "CGov.En.BreastCancer.json";
 
-        //     SiteWideSearchController ctrl = new SiteWideSearchController(GetInMemoryElasticClient(testFile));
-        //     SiteWideSearchResults results = ctrl.Get("breast cancer");
+            SearchController ctrl = new SearchController(
+                GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
 
-        //     Assert.Equal(12524, results.TotalResults);
-        // }
+            SiteWideSearchResults results = ctrl.Get("breast cancer");
+
+            Assert.Equal(12524, results.TotalResults);
+        }
 
         public void Get_WithTerm_HasCorrectFirstResult() 
         {
@@ -161,7 +167,10 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
             IElasticClient client = GetMockedSearchTemplateClient(req => actualReq = req);
 
 
-            SiteWideSearchController controller = new SiteWideSearchController(client);
+            SearchController controller = new SearchController(
+                client,
+                NullLogger<SearchController>.Instance
+            );
             controller.Get(term); //NOTE: this is when actualReq will get set.
 
             SearchTemplateRequest<SiteWideSearchResult> expReq = new SearchTemplateRequest<SiteWideSearchResult>("cgov"){
