@@ -1,4 +1,9 @@
-FROM microsoft/dotnet:latest
+##
+## This docker file is used for testing the application within a container
+## and should *not* be used to create production containers.
+##
+
+FROM nciwebcomm/dotnet-docker:sdk
 
 COPY . /app
 
