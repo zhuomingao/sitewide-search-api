@@ -35,17 +35,29 @@ namespace NCI.OCPL.Services.SiteWideSearch
             // Add framework services.
             services.AddMvc();
 
+            // This will inject an IElasticClient using our configuration into any
+            // controllers that take an IElasticClient parameter into its constructor.
+            //
+            // AddTransient means that it will instantiate a new instance of our client
+            // for each instance of the controller.  So the function below will be called
+            // on each request.   
             services.AddTransient<IElasticClient>(p => {
                 List<Uri> uris = new List<Uri>();
+
+                //Get the ElasticSearch servers that we will be connecting to.
                 string servers = Environment.GetEnvironmentVariable("ASPNETCORE_SERVERS");
                 
-
+                //TODO: Parse the list and don't assume only 1!
                 uris.Add(new Uri(servers));
 
+                // Create the connection pool, the SniffingConnectionPool will 
+                // keep tabs on the health of the servers in the cluster and
+                // probe them to ensure they are healthy.  This is how we handle
+                // redundancy and load balancing.
                 var connectionPool = new SniffingConnectionPool(uris);
-                
-                ConnectionSettings settings = new ConnectionSettings(connectionPool);                
 
+                //Return a new instance of an ElasticClient with our settings
+                ConnectionSettings settings = new ConnectionSettings(connectionPool);                                
                 return new ElasticClient(settings);
             });
         }
@@ -56,6 +68,10 @@ namespace NCI.OCPL.Services.SiteWideSearch
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            // This is equivelant to the old Global.asax OnError event handler.
+            // It will handle any unhandled exception and return a status code to the
+            // caller.  IF the error is of type APIErrorException then we will also return
+            // a message along with the status code.  (Otherwise we )
             app.UseExceptionHandler(errorApp => {
                 errorApp.Run(async context => {
                     context.Response.StatusCode = 500; // or another Status accordingly to Exception Type
@@ -69,7 +85,7 @@ namespace NCI.OCPL.Services.SiteWideSearch
 
                         //Unhandled exceptions may not be sanitized, so we will not
                         //display the issue.
-                        string message = ex.GetType().ToString();
+                        string message = "Errors have occurred.  Type: " + ex.GetType().ToString();
 
                         //Our own exceptions should be sanitized enough.                        
                         if (ex is APIErrorException) {
