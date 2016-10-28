@@ -37,6 +37,7 @@
   "buildOptions": {
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
+    "outputName": "NCI.OCPL.Services.SiteWideSearch",
     "debugType": "portable"
   },
 

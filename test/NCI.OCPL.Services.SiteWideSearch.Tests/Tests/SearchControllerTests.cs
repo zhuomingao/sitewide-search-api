@@ -14,6 +14,8 @@ using Newtonsoft.Json.Linq;
 using Moq;
 using Xunit;
 
+using NCI.OCPL.Utils.Testing;
+
 /*
  The SearchController class requires an IElasticClient, which is how
  the controller queries an ElasticSearch server.  As these are unit tests, we

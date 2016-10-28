@@ -8,7 +8,7 @@ using Nest;
 using Moq;
 using System.Collections.Generic;
 
-namespace NCI.OCPL.Services.SiteWideSearch.Tests
+namespace NCI.OCPL.Utils.Testing
 {
 
     /// <summary>
