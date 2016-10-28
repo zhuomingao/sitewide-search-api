@@ -14,154 +14,159 @@ using Newtonsoft.Json.Linq;
 using Moq;
 using Xunit;
 
-
+/*
+ The SearchController class requires an IElasticClient, which is how
+ the controller queries an ElasticSearch server.  As these are unit tests, we
+ will not be connecting to a ES server.  So we are using the Moq framework for
+ mocking up the methods in an IElasticClient.
+ 
+ 
+ The primary method we use is the SearchTemplate method.  This calls an ElasticSearch 
+ template (which is like a stored procedure).  Most of the tests will be for validating    
+ the parameters passed into the SearchTemplate method.  In order for the Nest library to
+ provide a fluent interface in defining queries and parameters for templates, most methods           
+ will take in an anonymous function for defining the parameters.  These functions usually          
+ return an object that defines the request the client should send to the server.  
+          
+ I note all of this since the class names are quite long and the code may start to get           
+ funky looking.            
+*/
 
 using NCI.OCPL.Services.SiteWideSearch.Controllers;
 
 namespace NCI.OCPL.Services.SiteWideSearch.Tests
 {
     /// <summary>
+    /// Defines a class with all of the query tests for the get method to ensure that the 
+    /// parameters passed into the SearchController are translated correctly into ES 
+    /// requests.
+    /// </summary>
+    public class Get_QueryTests {
+
+        /// <summary>
+        /// Helper method to build a SearchTemplateRequest in a more compact manner
+        /// </summary>
+        /// <param name="index">The index to fetch from</param>
+        /// <param name="file">The template file to use</param>
+        /// <param name="term">The search term we are looking for</param>
+        /// <param name="size">The result set size</param>
+        /// <param name="from">Where to start the results from</param>
+        /// <param name="fields">The fields we are requesting</param>
+        /// <param name="site">The sites to filter the results by</param>
+        /// <returns>A SearchTemplateRequest</returns>
+        private SearchTemplateRequest<SiteWideSearchResult> GetSearchRequest(
+            string index,
+            string file,
+            string term,
+            int size,
+            int from,
+            string fields,
+            string site
+        ) {
+
+            SearchTemplateRequest<SiteWideSearchResult> expReq = new SearchTemplateRequest<SiteWideSearchResult>(index){
+                File = file
+            };
+
+            expReq.Params = new Dictionary<string, object>();
+            expReq.Params.Add("my_value", term);
+            expReq.Params.Add("my_size", size);
+            expReq.Params.Add("my_from", from);
+            expReq.Params.Add("my_fields", fields);
+            expReq.Params.Add("my_site", site);
+
+            return expReq;
+        }
+
+        [Fact]
+        /// <summary>
+        /// Test for Get with a single term.
+        /// </summary>
+        public void Using_DefaultParams()
+        {
+            string term = "Breast Cancer";
+
+            ISearchTemplateRequest actualReq = null;
+
+            //Setup the client with the request handler callback to be executed later.
+            IElasticClient client = 
+                ElasticTools.GetMockedSearchTemplateClient<SiteWideSearchResult>(
+                    req => actualReq = req,
+                    resMock => {
+                        //Make sure we say that the response is valid.
+                        resMock.Setup(res => res.IsValid).Returns(true);
+                    } // We don't care what the response looks like.
+                );
+
+            SearchController controller = new SearchController(
+                client,
+                NullLogger<SearchController>.Instance
+            );
+
+            //NOTE: this is when actualReq will get set.
+            controller.Get(
+                "cgov_en",
+                term
+            ); 
+
+            SearchTemplateRequest<SiteWideSearchResult> expReq = GetSearchRequest(
+                "cgov",
+                "cgov_cgov_en",
+                term,
+                10,
+                0,
+                "\"id\", \"url\", \"metatag-description\", \"metatag-dcterms-type\"",
+                "all"
+            );
+
+            Assert.Equal(
+                expReq, 
+                actualReq,
+                new ElasticTools.SearchTemplateRequestComparer()
+            );
+        }
+    }
+
+    /// <summary>
+    /// Defines a class with all of the data mapping tests to ensure we are able to correctly 
+    /// map the responses from ES into the correct response from the SearchController
+    /// </summary>
+    public class Get_DataMapTests {
+
+        [Fact]
+        /// <summary>
+        /// Test for Breast Cancer term and ensures TotalResults is mapped correctly.
+        /// </summary>
+        public void Has_Correct_Total()
+        {
+            string testFile = "CGov.En.BreastCancer.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            SiteWideSearchResults results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.Equal(12524, results.TotalResults);
+        }
+
+    }
+    
+
+    /// <summary>
     /// Defines Tests for the SearchController class
     /// <remarks>
-    /// The SearchController class requires an IElasticClient, which is how
-    /// the controller queries an ElasticSearch server.  As these are unit tests, we
-    /// will not be connecting to a ES server.  So we are using the Moq framework for
-    /// mocking up the methods in an IElasticClient.
-    /// 
-    /// 
-    /// The primary method we use is the SearchTemplate method.  This calls an ElasticSearch 
-    /// template (which is like a stored procedure).  Most of the tests will be for validating    
-    /// the parameters passed into the SearchTemplate method.  In order for the Nest library to
-    /// provide a fluent interface in defining queries and parameters for templates, most methods           
-    /// will take in an anonymous function for defining the parameters.  These functions usually          
-    /// return an object that defines the request the client should send to the server.  
-    ///          
-    /// I note all of this since the class names are quite long and the code may start to get           
-    /// funky looking.            
     /// </remarks>
     /// </summary>
     public class SearchControllerTests
     {        
 
-        /// <summary>
-        /// Defines a class with all of the parameter tests to ensure that the parameters
-        /// passed into the SearchController are translated correctly into ES requests
-        /// </summary>
-        public class ParameterTests {
 
-            /// <summary>
-            /// Helper method to build a SearchTemplateRequest in a more compact manner
-            /// </summary>
-            /// <param name="index">The index to fetch from</param>
-            /// <param name="file">The template file to use</param>
-            /// <param name="term">The search term we are looking for</param>
-            /// <param name="size">The result set size</param>
-            /// <param name="from">Where to start the results from</param>
-            /// <param name="fields">The fields we are requesting</param>
-            /// <param name="site">The sites to filter the results by</param>
-            /// <returns>A SearchTemplateRequest</returns>
-            private SearchTemplateRequest<SiteWideSearchResult> GetSearchRequest(
-                string index,
-                string file,
-                string term,
-                int size,
-                int from,
-                string fields,
-                string site
-            ) {
-
-                SearchTemplateRequest<SiteWideSearchResult> expReq = new SearchTemplateRequest<SiteWideSearchResult>(index){
-                    File = file
-                };
-
-                expReq.Params = new Dictionary<string, object>();
-                expReq.Params.Add("my_value", term);
-                expReq.Params.Add("my_size", size);
-                expReq.Params.Add("my_from", from);
-                expReq.Params.Add("my_fields", fields);
-                expReq.Params.Add("my_site", site);
-
-                return expReq;
-            }
-
-            [Fact]
-            /// <summary>
-            /// Test for Get with a single term.
-            /// </summary>
-            public void Get_Coll_Term_WithDefaults()
-            {
-                string term = "Breast Cancer";
-
-                ISearchTemplateRequest actualReq = null;
-
-                //Setup the client with the request handler callback to be executed later.
-                IElasticClient client = 
-                    ElasticTools.GetMockedSearchTemplateClient<SiteWideSearchResult>(
-                        req => actualReq = req,
-                        resMock => {
-                            //Make sure we say that the response is valid.
-                            resMock.Setup(res => res.IsValid).Returns(true);
-                        } // We don't care what the response looks like.
-                    );
-
-                SearchController controller = new SearchController(
-                    client,
-                    NullLogger<SearchController>.Instance
-                );
-
-                //NOTE: this is when actualReq will get set.
-                controller.Get(
-                    "cgov_en",
-                    term
-                ); 
-
-                SearchTemplateRequest<SiteWideSearchResult> expReq = GetSearchRequest(
-                    "cgov",
-                    "cgov_cgov_en",
-                    term,
-                    10,
-                    0,
-                    "\"id\", \"url\", \"metatag-description\", \"metatag-dcterms-type\"",
-                    "all"
-                );
-
-                Assert.Equal(
-                    expReq, 
-                    actualReq,
-                    new ElasticTools.SearchTemplateRequestComparer()
-                );
-            }
-        }
-
-        /// <summary>
-        /// Defines a class with all of the data mapping tests to ensure we are able to correctly 
-        /// map the responses from ES into the correct response from the SearchController
-        /// </summary>
-        public class DataMappingTests {
-
-            [Fact]
-            /// <summary>
-            /// Test for Breast Cancer term and ensures TotalResults is mapped correctly.
-            /// </summary>
-            public void Get_WithTerm_HasCorrectTotalResults()
-            {
-                string testFile = "CGov.En.BreastCancer.json";
-
-                SearchController ctrl = new SearchController(
-                    ElasticTools.GetInMemoryElasticClient(testFile),
-                    NullLogger<SearchController>.Instance
-                );
-
-                //Parameters don't matter in this case...
-                SiteWideSearchResults results = ctrl.Get(
-                    "cgov_en",
-                    "breast cancer"
-                );
-
-                Assert.Equal(12524, results.TotalResults);
-            }
-
-        }
 
 
 
