@@ -11,7 +11,7 @@ using Nest;
 namespace NCI.OCPL.Services.SiteWideSearch.Controllers
 {
     /// <summary>
-    /// A Controller for hanlding requests for SiteWideSearch Suggestions
+    /// A Controller for handling requests for SiteWideSearch Suggestions
     /// </summary>
     [Route("[controller]")]
     public class AutosuggestController : Controller

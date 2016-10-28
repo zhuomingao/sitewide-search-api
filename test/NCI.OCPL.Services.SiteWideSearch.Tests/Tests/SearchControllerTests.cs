@@ -43,69 +43,127 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
     public class SearchControllerTests
     {        
 
-        [Fact]
         /// <summary>
-        /// Test for Breast Cancer term and ensures TotalResults is mapped correctly.
+        /// Defines a class with all of the parameter tests to ensure that the parameters
+        /// passed into the SearchController are translated correctly into ES requests
         /// </summary>
-        public void Get_WithTerm_HasCorrectTotalResults()
-        {
+        public class ParameterTests {
 
-            string testFile = "CGov.En.BreastCancer.json";
+            /// <summary>
+            /// Helper method to build a SearchTemplateRequest in a more compact manner
+            /// </summary>
+            /// <param name="index">The index to fetch from</param>
+            /// <param name="file">The template file to use</param>
+            /// <param name="term">The search term we are looking for</param>
+            /// <param name="size">The result set size</param>
+            /// <param name="from">Where to start the results from</param>
+            /// <param name="fields">The fields we are requesting</param>
+            /// <param name="site">The sites to filter the results by</param>
+            /// <returns>A SearchTemplateRequest</returns>
+            private SearchTemplateRequest<SiteWideSearchResult> GetSearchRequest(
+                string index,
+                string file,
+                string term,
+                int size,
+                int from,
+                string fields,
+                string site
+            ) {
 
-            SearchController ctrl = new SearchController(
-                ElasticTools.GetInMemoryElasticClient(testFile),
-                NullLogger<SearchController>.Instance
-            );
+                SearchTemplateRequest<SiteWideSearchResult> expReq = new SearchTemplateRequest<SiteWideSearchResult>(index){
+                    File = file
+                };
 
-            SiteWideSearchResults results = ctrl.Get("breast cancer");
+                expReq.Params = new Dictionary<string, object>();
+                expReq.Params.Add("my_value", term);
+                expReq.Params.Add("my_size", size);
+                expReq.Params.Add("my_from", from);
+                expReq.Params.Add("my_fields", fields);
+                expReq.Params.Add("my_site", site);
 
-            Assert.Equal(12524, results.TotalResults);
-        }
+                return expReq;
+            }
 
-        [Fact]
-        /// <summary>
-        /// Test for Get with a single term.
-        /// </summary>
-        public void Get_WithTerm_GeneratesCorrectQuery()
-        {
-            string term = "Breast Cancer";
+            [Fact]
+            /// <summary>
+            /// Test for Get with a single term.
+            /// </summary>
+            public void Get_Coll_Term_WithDefaults()
+            {
+                string term = "Breast Cancer";
 
-            ISearchTemplateRequest actualReq = null;
+                ISearchTemplateRequest actualReq = null;
 
-            //Setup the client with the request handler callback to be executed later.
-            IElasticClient client = 
-                ElasticTools.GetMockedSearchTemplateClient<SiteWideSearchResult>(
-                    req => actualReq = req,
-                    null // We don't care what the response looks like.
+                //Setup the client with the request handler callback to be executed later.
+                IElasticClient client = 
+                    ElasticTools.GetMockedSearchTemplateClient<SiteWideSearchResult>(
+                        req => actualReq = req,
+                        resMock => {
+                            //Make sure we say that the response is valid.
+                            resMock.Setup(res => res.IsValid).Returns(true);
+                        } // We don't care what the response looks like.
+                    );
+
+                SearchController controller = new SearchController(
+                    client,
+                    NullLogger<SearchController>.Instance
                 );
 
+                //NOTE: this is when actualReq will get set.
+                controller.Get(
+                    "cgov_en",
+                    term
+                ); 
 
-            SearchController controller = new SearchController(
-                client,
-                NullLogger<SearchController>.Instance
-            );
-            controller.Get(term); //NOTE: this is when actualReq will get set.
+                SearchTemplateRequest<SiteWideSearchResult> expReq = GetSearchRequest(
+                    "cgov",
+                    "cgov_cgov_en",
+                    term,
+                    10,
+                    0,
+                    "\"id\", \"url\", \"metatag-description\", \"metatag-dcterms-type\"",
+                    "all"
+                );
 
-            SearchTemplateRequest<SiteWideSearchResult> expReq = new SearchTemplateRequest<SiteWideSearchResult>("cgov"){
-                File = "cgov_cgovSearch"                
-            };
+                Assert.Equal(
+                    expReq, 
+                    actualReq,
+                    new ElasticTools.SearchTemplateRequestComparer()
+                );
+            }
+        }
 
-            expReq.Params = new Dictionary<string, object>();
-            expReq.Params.Add("my_value", term);
-            expReq.Params.Add("my_size", 10);
-            expReq.Params.Add("my_from", 0);
-            expReq.Params.Add("my_fields", new string[]{
-                "id", "url", "metatag-description", "metatag-dcterms-type"
-            });
-            expReq.Params.Add("my_site", "all");
+        /// <summary>
+        /// Defines a class with all of the data mapping tests to ensure we are able to correctly 
+        /// map the responses from ES into the correct response from the SearchController
+        /// </summary>
+        public class DataMappingTests {
 
-            Assert.Equal(
-                expReq, 
-                actualReq,
-                new ElasticTools.SearchTemplateRequestComparer()
-            );
+            [Fact]
+            /// <summary>
+            /// Test for Breast Cancer term and ensures TotalResults is mapped correctly.
+            /// </summary>
+            public void Get_WithTerm_HasCorrectTotalResults()
+            {
+                string testFile = "CGov.En.BreastCancer.json";
+
+                SearchController ctrl = new SearchController(
+                    ElasticTools.GetInMemoryElasticClient(testFile),
+                    NullLogger<SearchController>.Instance
+                );
+
+                //Parameters don't matter in this case...
+                SiteWideSearchResults results = ctrl.Get(
+                    "cgov_en",
+                    "breast cancer"
+                );
+
+                Assert.Equal(12524, results.TotalResults);
+            }
 
         }
+
+
 
         [Fact]
         public void Get_EmptyTerm_ReturnsError(){

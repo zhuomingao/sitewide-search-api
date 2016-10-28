@@ -70,7 +70,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
             // Call our dataFiller to setup the results to be whatever the caller needs it
             // to be.
             if (dataFiller != null)
-            {
+            {                
                 dataFiller(mockResponse);
             }
 
@@ -103,7 +103,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
                 )
                 // Return something from our method.
                 .Returns(mockResponse.Object);
-
             
             return elasticClientMock.Object;
         }
@@ -116,13 +115,36 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
         {
             public bool Equals(ISearchTemplateRequest x, ISearchTemplateRequest y)
             {
+                // If the items are both null, or if one or the other is null, return 
+                // the correct response right away.
+                if (x == null && y== null) 
+                {
+                    return true;
+                } 
+                else if (x != null && y != null)
+                {
+                    return false;
+                }
 
-                bool isEqual = 
+                //Initial test is that both objects are not null.
+                bool isEqual =  
                     x.Id == y.Id &&
                     x.File == y.File &&                    
                     x.Template == y.Template;
 
-                //TODO: Test all params!!!
+                if (isEqual) 
+                {
+                    foreach (KeyValuePair<string, object> pair in x.Params) 
+                    {
+                        //If a pair in x does not exist, or is not equal to y, then we must return false. 
+                        bool doesContain = y.Params.ContainsKey(pair.Key) && y.Params[pair.Key].Equals(pair.Value);                     
+                        if (!doesContain) 
+                        {
+                            isEqual = false;
+                            break;
+                        }
+                    }
+                }
 
                 return isEqual;
             }
