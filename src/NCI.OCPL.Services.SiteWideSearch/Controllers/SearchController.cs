@@ -40,7 +40,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         /// <param name="numperpage">The number of items to retrieve per page</param>
         /// <param name="site">An optional parameter used to limit the number of items returned based on site.</param>
         /// <returns>A SiteWideSearchResults collection object</returns>
-        [HttpGet("{term}")]
+        [HttpGet("{collection}/{term}")]
         public SiteWideSearchResults Get(
             string collection, 
             string term,             
