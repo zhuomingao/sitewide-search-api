@@ -25,8 +25,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{term}")]
-        public SiteWideSearchResults Get(
+        [HttpGet("{language}/{term}")]
+        public Suggestions Get(
             string language,
             string term,
             [FromQuery] int from = 0, //Really?  I mean, when do you page autosuggestions?
@@ -45,18 +45,18 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
 
             //TODO: Catch Exception
             //TODO: Return List<Suggestion>            
-            var response = _elasticClient.SearchTemplate<SiteWideSearchResult>(sd => sd
-                .Index("cgov")
+            var response = _elasticClient.SearchTemplate<Suggestion>(sd => sd
+                .Index("cgovsitewideautosuggest")
                 .File("cgov_sitewideAutosuggest")
                 .Params(pd => pd
-                    .Add("is_spanish", "true")
+                    //.Add("is_spanish", "true")
                     .Add("my_size", 10)
                     .Add("my_from", 0)
                 )
             );   
 
             if (response.IsValid) {
-                return new SiteWideSearchResults(
+                return new Suggestions(
                     response.Total,
                     response.Documents
                 );
