@@ -44,16 +44,17 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             
 
             //TODO: Catch Exception
-            //TODO: Return List<Suggestion>            
+            //TODO: Return List<Suggestion>
             var response = _elasticClient.SearchTemplate<Suggestion>(sd => sd
                 .Index("cgovsitewideautosuggest")
                 .File("cgov_sitewideAutosuggest")
                 .Params(pd => pd
+                    .Add("searchstring", term)
                     //.Add("is_spanish", "true")
                     .Add("my_size", 10)
                     .Add("my_from", 0)
                 )
-            );   
+            );
 
             if (response.IsValid) {
                 return new Suggestions(
@@ -63,7 +64,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
 
             } else {
                 throw new APIErrorException(500, "Error connecting to search servers");
-            }            
+            }        
         }
 
 
