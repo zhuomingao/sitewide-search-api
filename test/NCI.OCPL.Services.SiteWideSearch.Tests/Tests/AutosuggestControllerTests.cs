@@ -18,7 +18,7 @@ using NCI.OCPL.Utils.Testing;
 
 using NCI.OCPL.Services.SiteWideSearch.Controllers;
 
-namespace NCI.OCPL.Services.SiteWideSearch.Tests
+namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 {
     /// <summary>
     /// Defines Tests for the AutosuggestController class
@@ -40,10 +40,135 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests
     /// funky looking.            
     /// </remarks>
     /// </summary>
+
+
+    /// <summary>
+    /// Defines a class with all of the data mapping tests to ensure we are able to correctly 
+    /// map the responses from ES into the correct response from the AutosuggestController
+    /// </summary>
+    public class Get_DataMapTests {
+        [Fact]
+        /// <summary>
+        /// Test that the list of results exists.
+        /// </summary>
+        public void Check_Results_Exist()
+        {
+            string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            Suggestions results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.NotEmpty(results.Results);
+        }
+
+
+        [Fact]
+        /// <summary>
+        /// Test that the list of returned results has the right number of items.
+        /// </summary>
+        public void Check_Result_Count()
+        {
+            string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            Suggestions results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.Equal(20, results.Results.Length);
+        }
+
+
+        [Fact]
+        /// <summary>
+        /// Test that the first result contains the expected string.
+        /// </summary>
+        public void Check_First_Result()
+        {
+            string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            Suggestions results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.Equal("breast cancer", results.Results[0].Term);
+        }
+
+        [Theory]
+        [InlineData(0, "breast cancer")]
+        [InlineData(3, "metastatic breast cancer")]
+        [InlineData(17, "breast cancer risk assessment")]
+        [InlineData(19, "breast cancer symptoms")]
+        /// <summary>
+        /// Test that the suggested search strings from arbitrary offsets
+        /// in the collection have the correct values
+        /// </summary>
+        public void Check_Arbitrary_Result(int offset, string expectedTerm)
+        {
+            string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            Suggestions results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.Equal(expectedTerm, results.Results[offset].Term);
+        }
+
+        [Fact]
+        /// <summary>
+        /// Test for Breast Cancer search string and ensures Total is mapped correctly.
+        /// </summary>
+        public void Has_Correct_Total()
+        {
+            string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            Suggestions results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.Equal(222, results.Total);
+        }
+    }
+
     public class AutosuggestControllerTests
     {        
 
-        [Fact]
+        //[Fact]
         public void AutosuggestTestsAreAllDoneAndWork(){
             Assert.False(true);
         }
