@@ -17,9 +17,9 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
     public class AutosuggestController : Controller
     {
         private readonly IElasticClient _elasticClient;
-        private readonly ILogger<SearchController> _logger;
+        private readonly ILogger<AutosuggestController> _logger;
 
-        public AutosuggestController(IElasticClient elasticClient, ILogger<SearchController> logger)
+        public AutosuggestController(IElasticClient elasticClient, ILogger<AutosuggestController> logger)
         {
             _elasticClient = elasticClient;
             _logger = logger;
