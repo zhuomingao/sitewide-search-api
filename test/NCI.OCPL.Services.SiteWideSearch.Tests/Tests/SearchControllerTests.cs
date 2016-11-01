@@ -161,17 +161,12 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
     
 
     /// <summary>
-    /// Defines Tests for the SearchController class
+    /// Defines tests of SearchController error behavior.
     /// <remarks>
     /// </remarks>
     /// </summary>
-    public class SearchControllerTests
+    public class ErrorTests
     {        
-
-
-
-
-
         [Fact]
         public void Get_EmptyTerm_ReturnsError(){
             Assert.False(true);
