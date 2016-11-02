@@ -180,6 +180,31 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             Assert.Equal(0, results.Results.Length);
         }
 
+        [Fact]
+        /// <summary>
+        /// Test that the search results at arbitrary offsets
+        /// in the collection are present
+        /// </summary>
+        public void Check_Results_Present()
+        {
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            SiteWideSearchResults results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            //Assert.NotNull(results.Results[offset]);
+            Assert.All(results.Results, item => Assert.NotNull(item));
+        }
+
+
     }
 
 
@@ -216,9 +241,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             {
                 return new[]
                 {
-                    new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x =>
-                     x.Description == null
-                     ), "metatag-dcterms-type" }
+                    new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x => x.Description == null ), "metatag-dcterms-type" }
                 };
             }
         }
