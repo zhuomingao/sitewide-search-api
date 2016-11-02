@@ -27,9 +27,6 @@
                ],
                "url": [
                   "http://www.cancer.gov/types/breast"
-               ],
-               "metatag-dcterms-type": [
-                  "cgvCancerTypeHome"
                ]
             }
          },
@@ -44,9 +41,6 @@
                ],
                "metatag-description": [
                   "NCI's gateway for information about breast cancer."
-               ],
-               "title": [
-                  "Breast Cancer—Health Professional Version - National Cancer Institute"
                ],
                "url": [
                   "http://www.cancer.gov/types/breast/hp"

@@ -207,13 +207,21 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
     }
 
 
+    /// <summary>
+    /// Class to encapsulate all support code for testing optional fields  
+    /// </summary>
     public class OptionalFieldTests
     {
         [Theory, MemberData(nameof(FieldData))]
         /// <summary>
         /// Test that the search result mapping returns null when an optional field is not present.
+        /// The individual tests are located in the FieldData property.
         /// </summary>
-        public void Optional_Field_Is_Null(int offset, Object nullTest, string description)
+        /// <param name="offset">Offset into testFile's set of search results.</param>
+        /// <param name="nullTest">A test function of tupe Func&lt;SiteWideSearchResult, Boolean&gt; which checks
+        /// wheter a specific field in the selected result is null.</param>
+        /// <param name="fieldName">Name of the field being tested, used for display purposes.</param>
+        public void Optional_Field_Is_Null(int offset, Object nullTest, string fieldName)
         {
             string testFile = "Search.CGov.En.AbsentFields.json";
 
@@ -228,9 +236,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
                 "breast cancer"
             );
 
-            //Assert.True(test(results.Results[offset]), "baz");
             SiteWideSearchResult item = results.Results[offset];
-            Assert.True(((Func<SiteWideSearchResult, Boolean>)nullTest)(item), description);
+            Assert.True(((Func<SiteWideSearchResult, Boolean>)nullTest)(item), fieldName);
             
         }
 
@@ -240,7 +247,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             {
                 return new[]
                 {
-                    new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x => x.Description == null ), "metatag-dcterms-type" }
+                    new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x => x.Description == null ), "metatag-dcterms-type" },
+                    new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x => x.Title == null ), "title" }
                 };
             }
         }

@@ -70,10 +70,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
         }
 
         [Fact]
-//        [InlineData(0)]
-//        [InlineData(3)]
-//        [InlineData(17)]
-//        [InlineData(19)]
         /// <summary>
         /// Test that the search results at arbitrary offsets
         /// in the collection are present
@@ -93,7 +89,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
                 "breast cancer"
             );
 
-            //Assert.NotNull(results.Results[offset]);
             Assert.All(results.Results, item => Assert.NotNull(item));
         }
 
