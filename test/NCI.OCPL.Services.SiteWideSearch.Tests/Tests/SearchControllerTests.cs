@@ -141,7 +141,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
         /// </summary>
         public void Has_Correct_Total()
         {
-            string testFile = "CGov.En.BreastCancer.json";
+            string testFile = "Search.CGov.En.BreastCancer.json";
 
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
@@ -157,6 +157,72 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             Assert.Equal(12524, results.TotalResults);
         }
 
+        [Fact]
+        /// <summary>
+        /// Test that search mapping returns correct number of results for an empty result set.
+        /// (And also that it doesn't explode!)
+        /// </summary>
+        public void No_Results_Has_Correct_Total()
+        {
+            string testFile = "Search.CGov.En.NoResults.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            SiteWideSearchResults results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.Equal(0, results.Results.Length);
+        }
+
+    }
+
+
+    public class OptionalFieldTests
+    {
+        [Theory, MemberData(nameof(FieldData))]
+        /// <summary>
+        /// Test that the search result mapping returns null when an optional field is not present.
+        /// </summary>
+        public void Optional_Field_Is_Null(int offset, Object nullTest, string description)
+        {
+            string testFile = "Search.CGov.En.AbsentFields.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            SiteWideSearchResults results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            //Assert.True(test(results.Results[offset]), "baz");
+            SiteWideSearchResult item = results.Results[offset];
+            Assert.True(((Func<SiteWideSearchResult, Boolean>)nullTest)(item), description);
+            
+        }
+
+        public static IEnumerable<object[]> FieldData
+        {
+            get
+            {
+                return new[]
+                {
+                    new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x =>
+                     x.Description == null
+                     ), "metatag-dcterms-type" }
+                };
+            }
+        }
+
     }
     
 
@@ -166,7 +232,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
     /// </remarks>
     /// </summary>
     public class ErrorTests
-    {        
+    {
+
         [Fact]
         public void Get_EmptyTerm_ReturnsError(){
             Assert.False(true);
