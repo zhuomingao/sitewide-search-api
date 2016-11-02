@@ -177,7 +177,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
                 "breast cancer"
             );
 
-            Assert.Equal(0, results.Results.Length);
+            Assert.Empty(results.Results);
         }
 
         [Fact]
@@ -200,7 +200,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
                 "breast cancer"
             );
 
-            //Assert.NotNull(results.Results[offset]);
             Assert.All(results.Results, item => Assert.NotNull(item));
         }
 

@@ -69,6 +69,33 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
             Assert.NotEmpty(results.Results);
         }
 
+        [Fact]
+//        [InlineData(0)]
+//        [InlineData(3)]
+//        [InlineData(17)]
+//        [InlineData(19)]
+        /// <summary>
+        /// Test that the search results at arbitrary offsets
+        /// in the collection are present
+        /// </summary>
+        public void Check_Results_Present()
+        {
+            string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            Suggestions results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            //Assert.NotNull(results.Results[offset]);
+            Assert.All(results.Results, item => Assert.NotNull(item));
+        }
 
         [Fact]
         /// <summary>
