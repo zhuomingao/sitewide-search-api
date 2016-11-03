@@ -203,6 +203,29 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             Assert.All(results.Results, item => Assert.NotNull(item));
         }
 
+        [Fact]
+        /// <summary>
+        /// Test that the search results at arbitrary offsets
+        /// in the collection are present
+        /// </summary>
+        public void Check_RequiredField_Present()
+        {
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            //Parameters don't matter in this case...
+            SiteWideSearchResults results = ctrl.Get(
+                "cgov_en",
+                "breast cancer"
+            );
+
+            Assert.All(results.Results, item => Assert.NotNull(item.URL));
+        }
+
 
     }
 
@@ -215,7 +238,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
         [Theory, MemberData(nameof(FieldData))]
         /// <summary>
         /// Test that the search result mapping returns null when an optional field is not present.
-        /// The individual tests are located in the FieldData property.
+        /// Inputs for each call are obtained by iterating over the FieldData property.
         /// </summary>
         /// <param name="offset">Offset into testFile's set of search results.</param>
         /// <param name="nullTest">A test function of tupe Func&lt;SiteWideSearchResult, Boolean&gt; which checks
@@ -241,18 +264,16 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             
         }
 
-        public static IEnumerable<object[]> FieldData
-        {
-            get
-            {
-                return new[]
+        /// <summary>
+        /// Provides an IEnumerable containing the inputs for successive calls to the Optional_Field_Is_Null test.
+        /// Each entry contains three items, mapping to the corresponding method parameters.
+        /// </summary>
+        public static IEnumerable<object[]> FieldData => new[]
                 {
                     new  object[]{0, (Func<SiteWideSearchResult, Boolean>)(x => x.Title == null ), "title" },
                     new  object[]{1, (Func<SiteWideSearchResult, Boolean>)(x => x.Description == null ), "metatag-description" },
                     new  object[]{2, (Func<SiteWideSearchResult, Boolean>)(x => x.ContentType == null ), "metatag-dcterms-type" }
                 };
-            }
-        }
 
     }
     
@@ -265,11 +286,104 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
     public class ErrorTests
     {
 
-        //[Fact]
-        public void Get_EmptyTerm_ReturnsError(){
-            Assert.False(true);
+        [Theory]
+        [InlineData(403)] // Forbidden
+        [InlineData(404)] // Not Found
+        [InlineData(500)] // Server error
+        /// <summary>
+        /// Verify that controller throws the correct exception when the
+        /// ES client reports an error.
+        /// </summary>
+        /// <param name="offset">Offset into the list of results of the item to check.</param>
+        /// <param name="expectedTerm">The expected term text</param>
+        public void Handle_Failed_Query(int errorCode)
+        {
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetErrorElasticClient(errorCode),
+                NullLogger<SearchController>.Instance
+            );
+
+            Exception ex = Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        "cgov_en",
+                        "breast cancer"
+                    )
+                );
+
+            // Failed search request should always report 500. 
+            Assert.Equal(500, ((APIErrorException)ex).HttpStatusCode);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("        ")] // Spaces
+        [InlineData("\t")]
+        [InlineData("\n")]
+        [InlineData("\r")]
+        /// <summary>
+        /// Verify that controller throws the correct exception when no collection is specified.
+        /// </summary>
+        /// <param name="collectionValue">A string specifying the collection to search.</param>
+        public void Get_EmptyCollection_ReturnsError(String collectionValue)
+        {
+            // The file needs to exist so it can be deserialized, but we don't make
+            // use of the actual content. 
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            Exception ex = Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        collectionValue,
+                        "some term"
+                    )
+                );
+
+            // Search without a collection should report bad request (400) 
+            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
+        }
+
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")] // Empty string
+        [InlineData("        ")] // Spaces
+        [InlineData("\t")]
+        [InlineData("\n")]
+        [InlineData("\r")]
+        /// <summary>
+        /// Verify that controller throws the correct exception when no search text is specified.
+        /// </summary>
+        /// <param name="termValue">A string the text to search for.</param>
+        public void Get_EmptyTerm_ReturnsError(String termValue)
+        {
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<SearchController>.Instance
+            );
+
+            Exception ex = Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        "some collection",
+                        termValue
+                    )
+                );
+
+            // Search without something to search for should report bad request (400) 
+            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
+        }
 
     }
 }

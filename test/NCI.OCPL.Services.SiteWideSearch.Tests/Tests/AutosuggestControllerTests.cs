@@ -146,6 +146,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
         /// Test that the suggested search strings from arbitrary offsets
         /// in the collection have the correct values
         /// </summary>
+        /// <param name="offset">Offset into the list of results of the item to check.</param>
+        /// <param name="expectedTerm">The expected term text</param>
         public void Check_Arbitrary_Result(int offset, string expectedTerm)
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
@@ -187,13 +189,113 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
         }
     }
 
-    public class AutosuggestControllerTests
-    {        
+    /// <summary>
+    /// Defines tests of AutosuggestController error behavior.
+    /// <remarks>
+    /// </remarks>
+    /// </summary>
+    public class ErrorTests
+    {
 
-        //[Fact]
-        public void AutosuggestTestsAreAllDoneAndWork(){
-            Assert.False(true);
+
+        [Theory]
+        [InlineData(403)] // Forbidden
+        [InlineData(404)] // Not Found
+        [InlineData(500)] // Server error
+        /// <summary>
+        /// Verify that controller throws the correct exception when the
+        /// ES client reports an error.
+        /// </summary>
+        /// <param name="offset">Offset into the list of results of the item to check.</param>
+        /// <param name="expectedTerm">The expected term text</param>
+        public void Handle_Failed_Query(int errorCode)
+        {
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetErrorElasticClient(errorCode),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        "cgov_en",
+                        "breast cancer"
+                    )
+                );
         }
 
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("        ")] // Spaces
+        [InlineData("\t")]
+        [InlineData("\n")]
+        [InlineData("\r")]
+        /// <summary>
+        /// Verify that controller throws the correct exception when no collection is specified.
+        /// </summary>
+        /// <param name="collectionValue">A string specifying the collection to search.</param>
+        public void Get_EmptyCollection_ReturnsError(String collectionValue)
+        {
+            // The file needs to exist so it can be deserialized, but we don't make
+            // use of the actual content. 
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            Exception ex = Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        collectionValue,
+                        "some term"
+                    )
+                );
+
+            // Search without a collection should report bad request (400) 
+            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
+        }
+
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")] // Empty string
+        [InlineData("        ")] // Spaces
+        [InlineData("\t")]
+        [InlineData("\n")]
+        [InlineData("\r")]
+        /// <summary>
+        /// Verify that controller throws the correct exception when no search text is specified.
+        /// </summary>
+        /// <param name="termValue">A string the text to search for.</param>
+        public void Get_EmptyTerm_ReturnsError(String termValue)
+        {
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            Exception ex = Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        "some collection",
+                        termValue
+                    )
+                );
+
+            // Search without something to search for should report bad request (400) 
+            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
+        }
+
+
     }
+
 }
