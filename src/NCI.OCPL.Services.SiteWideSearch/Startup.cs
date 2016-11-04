@@ -54,7 +54,8 @@ namespace NCI.OCPL.Services.SiteWideSearch
                 // keep tabs on the health of the servers in the cluster and
                 // probe them to ensure they are healthy.  This is how we handle
                 // redundancy and load balancing.
-                var connectionPool = new SniffingConnectionPool(uris);
+                //var connectionPool = new SniffingConnectionPool(uris);
+                var connectionPool = new StaticConnectionPool(uris);
 
                 //Return a new instance of an ElasticClient with our settings
                 ConnectionSettings settings = new ConnectionSettings(connectionPool);                                
