@@ -60,12 +60,12 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             //_logger.LogInformation("Search Request -- Term: {0}, Page{1} ", term, pagenum);
 
             //Setup our template name based on the collection name
-            string templateName = "cgov_" + collection;
+            string templateName = "cgov_search_" + collection;
 
             //TODO: Make this a parameter that can take in a list of fields and turn them
             //into this string.
             // Setup the list of fields we want ES to return.
-            string fields = "\"id\", \"url\", \"metatag-description\", \"metatag-dcterms-type\"";            
+            string fields = "\"url\", \"title\", \"metatag-description\", \"metatag-dcterms-type\"";            
 
             //thios Can throw exception
             var response = _elasticClient.SearchTemplate<SiteWideSearchResult>(sd => sd
