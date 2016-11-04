@@ -25,15 +25,15 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{language}/{term}")]
+        [HttpGet("{collection}/{term}")]
         public Suggestions Get(
-            string language,
+            string collection,
             string term,
             [FromQuery] int from = 0, //Really?  I mean, when do you page autosuggestions?
             [FromQuery] int size = 10 
             )
         {
-            if (string.IsNullOrWhiteSpace(language))
+            if (string.IsNullOrWhiteSpace(collection))
                 throw new APIErrorException(400, "You must supply a language and term");
 
             //TODO: Validate language
@@ -41,16 +41,17 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             if (string.IsNullOrWhiteSpace(term))
                 throw new APIErrorException(400, "You must supply a search term");
 
+            //Setup our template name based on the collection name
+            string templateName = "autosg_suggest_" + collection;
             
 
             //TODO: Catch Exception
             //TODO: Return List<Suggestion>
             var response = _elasticClient.SearchTemplate<Suggestion>(sd => sd
-                .Index("cgovsitewideautosuggest")
-                .File("cgov_sitewideAutosuggest")
+                .Index("autosg")
+                .File(templateName)
                 .Params(pd => pd
                     .Add("searchstring", term)
-                    //.Add("is_spanish", "true")
                     .Add("my_size", 10)
                     .Add("my_from", 0)
                 )
