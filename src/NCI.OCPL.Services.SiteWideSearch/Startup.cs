@@ -46,6 +46,8 @@ namespace NCI.OCPL.Services.SiteWideSearch
 
                 //Get the ElasticSearch servers that we will be connecting to.
                 string servers = Environment.GetEnvironmentVariable("ASPNETCORE_SERVERS");
+                string username = Environment.GetEnvironmentVariable("ASPNETCORE_USERNAME");
+                string password = Environment.GetEnvironmentVariable("ASPNETCORE_PASSWORD");
                 
                 //TODO: Parse the list and don't assume only 1!
                 uris.Add(new Uri(servers));
@@ -54,11 +56,13 @@ namespace NCI.OCPL.Services.SiteWideSearch
                 // keep tabs on the health of the servers in the cluster and
                 // probe them to ensure they are healthy.  This is how we handle
                 // redundancy and load balancing.
-                //var connectionPool = new SniffingConnectionPool(uris);
-                var connectionPool = new StaticConnectionPool(uris);
+                var connectionPool = new SniffingConnectionPool(uris);
+                //var connectionPool = new StaticConnectionPool(uris);
 
                 //Return a new instance of an ElasticClient with our settings
-                ConnectionSettings settings = new ConnectionSettings(connectionPool);                                
+                ConnectionSettings settings = new ConnectionSettings(connectionPool)
+                    .BasicAuthentication(username, password);
+                                                
                 return new ElasticClient(settings);
             });
         }
