@@ -29,7 +29,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         public Suggestions Get(
             string collection,
             string term,
-            [FromQuery] int from = 0, //Really?  I mean, when do you page autosuggestions?
             [FromQuery] int size = 10 
             )
         {
@@ -53,7 +52,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
                 .Params(pd => pd
                     .Add("searchstring", term)
                     .Add("my_size", 10)
-                    .Add("my_from", 0)
                 )
             );
 
