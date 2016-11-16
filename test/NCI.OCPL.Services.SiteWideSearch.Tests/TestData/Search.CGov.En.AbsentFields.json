@@ -1,3 +1,23 @@
+/*
+    Search results on CancerGov for the word breast, remvoing a different
+    element from the _source collection on each (only url is required to be present.)
+
+    Based on the query below, with manual editing.
+
+    POST cgov/doc/_search/template
+    {
+        "template": {
+            "file": "cgov_search_cgov_en" 
+        },
+        "params": {
+            "my_value" : "breast cancer"
+            ,"my_size" : 10
+            , "my_from" : 0
+            ,"my_fields": "\"url\", \"title\", \"metatag-description\", \"metatag-dcterms-type\""
+            , "my_site": "all"
+        }
+    }
+*/
 {
    "took": 381,
    "timed_out": false,

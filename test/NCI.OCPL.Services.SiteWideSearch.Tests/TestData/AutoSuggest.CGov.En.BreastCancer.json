@@ -1,5 +1,18 @@
+/*
+    Suggestions based on the keyword "breast"
+
+    POST /autosg/terms/_search/template
+    {
+        "file" : "autosg_suggest_cgov_en",
+        "params" : {
+            "searchstring" : "breast",
+            "my_size" : 20
+        }
+    }
+*/
+
 {
-   "took": 90,
+   "took": 28,
    "timed_out": false,
    "_shards": {
       "total": 1,
@@ -11,9 +24,9 @@
       "max_score": null,
       "hits": [
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5sG-KoOLaGXV-u",
+            "_id": "AVg_84OaXnEUFNbaeWe-",
             "_score": null,
             "_source": {
                "term": "breast cancer"
@@ -23,9 +36,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5sG-KoOLaGXV-o",
+            "_id": "AVg_84OaXnEUFNbaeWe4",
             "_score": null,
             "_source": {
                "term": "breast"
@@ -35,9 +48,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P51G-KoOLaGXW4Q",
+            "_id": "AVg_84SkXnEUFNbaeXYg",
             "_score": null,
             "_source": {
                "term": "inflammatory breast cancer"
@@ -47,9 +60,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P53G-KoOLaGXXKx",
+            "_id": "AVg_84TmXnEUFNbaeXrB",
             "_score": null,
             "_source": {
                "term": "metastatic breast cancer"
@@ -59,9 +72,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P53G-KoOLaGXXGh",
+            "_id": "AVg_84TaXnEUFNbaeXmx",
             "_score": null,
             "_source": {
                "term": "male breast cancer"
@@ -71,9 +84,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P6AG-KoOLaGXYMX",
+            "_id": "AVg_84WiXnEUFNbaeYsn",
             "_score": null,
             "_source": {
                "term": "types of breast cancer"
@@ -83,9 +96,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_Q",
+            "_id": "AVg_84OdXnEUFNbaeWfg",
             "_score": null,
             "_source": {
                "term": "breast cancer risk"
@@ -95,9 +108,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P6BG-KoOLaGXYNP",
+            "_id": "AVg_84WkXnEUFNbaeYtf",
             "_score": null,
             "_source": {
                "term": "understanding breast changes"
@@ -107,9 +120,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_g",
+            "_id": "AVg_84OkXnEUFNbaeWfw",
             "_score": null,
             "_source": {
                "term": "breast cancer statistics"
@@ -119,9 +132,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_X",
+            "_id": "AVg_84OjXnEUFNbaeWfn",
             "_score": null,
             "_source": {
                "term": "breast cancer screening"
@@ -131,9 +144,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_e",
+            "_id": "AVg_84OkXnEUFNbaeWfu",
             "_score": null,
             "_source": {
                "term": "breast cancer staging"
@@ -143,9 +156,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_u",
+            "_id": "AVg_84OlXnEUFNbaeWf-",
             "_score": null,
             "_source": {
                "term": "breast changes"
@@ -155,9 +168,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV__",
+            "_id": "AVg_84OmXnEUFNbaeWgP",
             "_score": null,
             "_source": {
                "term": "breast reconstruction"
@@ -167,9 +180,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_K",
+            "_id": "AVg_84OcXnEUFNbaeWfa",
             "_score": null,
             "_source": {
                "term": "breast cancer prevention"
@@ -179,9 +192,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_q",
+            "_id": "AVg_84OlXnEUFNbaeWf6",
             "_score": null,
             "_source": {
                "term": "breast cancer treatment"
@@ -191,9 +204,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_S",
+            "_id": "AVg_84OjXnEUFNbaeWfi",
             "_score": null,
             "_source": {
                "term": "Breast Cancer Risk Assessment Tool"
@@ -203,9 +216,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5_G-KoOLaGXX-f",
+            "_id": "AVg_84WBXnEUFNbaeYev",
             "_score": null,
             "_source": {
                "term": "stages of breast cancer"
@@ -215,9 +228,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_R",
+            "_id": "AVg_84OjXnEUFNbaeWfh",
             "_score": null,
             "_source": {
                "term": "breast cancer risk assessment"
@@ -227,9 +240,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_V",
+            "_id": "AVg_84OjXnEUFNbaeWfl",
             "_score": null,
             "_source": {
                "term": "breast cancer risk tool"
@@ -239,9 +252,9 @@
             ]
          },
          {
-            "_index": "auton2",
+            "_index": "auton3",
             "_type": "terms",
-            "_id": "AVef5P5tG-KoOLaGXV_n",
+            "_id": "AVg_84OlXnEUFNbaeWf3",
             "_score": null,
             "_source": {
                "term": "breast cancer symptoms"
