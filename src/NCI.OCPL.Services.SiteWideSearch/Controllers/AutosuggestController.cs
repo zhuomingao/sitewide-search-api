@@ -25,6 +25,18 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             _logger = logger;
         }
 
+        // GET autosuggset/cgov_en/lung+cancer
+        /// <summary>
+        /// Retrieves a collection of potential search terms based on the value passed as term.
+        /// </summary>
+        /// <param name="collection">The search collection/strategy to use.  This defines the ES template to use.</param>
+        /// <param name="term">The search term to use as a basis for search terms</param>
+        /// <param name="size">The maximum number of results to return.</param>
+        /// <returns>A Suggestions collection of Suggestion objects.</returns>
+        /// <remarks>
+        /// Collection is of the form {sitename}_{lang_code}.  Currently, {sitename} is always "cgov" and {lang_code} may
+        /// be either "en" (English) or "es" (Español).
+        /// </remarks>
         [HttpGet("{collection}/{term}")]
         public Suggestions Get(
             string collection,
