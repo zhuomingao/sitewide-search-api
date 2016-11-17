@@ -59,7 +59,9 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             //TODO: Access Logging with params
             //_logger.LogInformation("Search Request -- Term: {0}, Page{1} ", term, pagenum);
 
-            //Setup our template name based on the collection name
+            // Setup our template name based on the collection name.  Template name is the directory the
+            // file is stored in, an underscore, the template name prefix (search), an underscore
+            // and then the name of the collection (e.g cgov_en, cgov_es, doc_en)
             string templateName = "cgov_search_" + collection;
 
             //TODO: Make this a parameter that can take in a list of fields and turn them

@@ -52,7 +52,9 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             if (string.IsNullOrWhiteSpace(term))
                 throw new APIErrorException(400, "You must supply a search term");
 
-            //Setup our template name based on the collection name
+            // Setup our template name based on the collection name.  Template name is the directory the
+            // file is stored in, an underscore, the template name prefix (search), an underscore
+            // and then the name of the collection (e.g cgov_en, cgov_es, doc_en)
             string templateName = "autosg_suggest_" + collection;
             
 
