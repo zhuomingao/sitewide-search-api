@@ -20,10 +20,10 @@ names under the bash shell.)
 ### Environment-specific Configuration Properties
 
 **Elasticsearch**
-```json
+```javascript
 {
   "Elasticsearch" : {
-    "Servers" : "http://localhost", // The Elasticsearch server
+    "Servers" : "http://localhost", // Comma-separated list of elasticsearch servers
     "Userid" : "no-userid",         // Userid for authenticating 
     "Password" : "no-password"      // Password for authenticating      
   }
