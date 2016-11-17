@@ -82,9 +82,9 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
         [Fact]
         /// <summary>
-        /// Test for Get with a single term.
+        /// Verify that the request sent to ES for a single term is being set up correctly.
         /// </summary>
-        public void Using_DefaultParams()
+        public void Check_For_Correct_Request_Data()
         {
             string term = "Breast Cancer";
 
@@ -112,12 +112,12 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             ); 
 
             SearchTemplateRequest<SiteWideSearchResult> expReq = GetSearchRequest(
-                "cgov",
-                "cgov_cgov_en",
-                term,
-                10,
-                0,
-                "\"id\", \"url\", \"metatag-description\", \"metatag-dcterms-type\"",
+                "cgov",                 // Search index to look in.
+                "cgov_search_cgov_en",  // Template name, preceded by the name of the directory it's stored in.
+                term,                   // Search term
+                10,                     // Max number of records to retrieve.
+                0,                      // Offset of first record to retrieve.
+                "\"url\", \"title\", \"metatag-description\", \"metatag-dcterms-type\"",
                 "all"
             );
 
