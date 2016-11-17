@@ -38,4 +38,8 @@ export Elasticsearch__Passwordno-password
 ```
 (Use either export or set, depending on the operating system.)
 
+The Elasticsearch:Servers property is required to contain URIs for one or more Elasticsearch servers.
+Each URI must include a protocol (http or https), a server name, and optionally, a port number.
+Multiple URIs are separated by a comma.  (e.g. "https://fred:9200, https://george:9201, https://ginny:9202")
+
 Reference: [Microsoft Configuration introduction](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration)
