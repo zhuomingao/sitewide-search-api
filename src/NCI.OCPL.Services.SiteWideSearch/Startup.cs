@@ -44,11 +44,13 @@ namespace NCI.OCPL.Services.SiteWideSearch
             services.AddTransient<IElasticClient>(p => {
                 List<Uri> uris = new List<Uri>();
 
-                //Get the ElasticSearch servers that we will be connecting to.
-                string servers = Environment.GetEnvironmentVariable("ASPNETCORE_SERVERS");
-                string username = Environment.GetEnvironmentVariable("ASPNETCORE_USERNAME");
-                string password = Environment.GetEnvironmentVariable("ASPNETCORE_PASSWORD");
-                
+                // Get the ElasticSearch servers that we will be connecting to.
+                // Ideally, we'd load Configuration via the Dependency Injection framework,
+                // but this will work for now.
+                string servers =  Configuration["Elasticsearch:Servers"];
+                string username = Configuration["Elasticsearch:Userid"];
+                string password = Configuration["Elasticsearch:Password"];
+
                 //TODO: Parse the list and don't assume only 1!
                 uris.Add(new Uri(servers));
 
