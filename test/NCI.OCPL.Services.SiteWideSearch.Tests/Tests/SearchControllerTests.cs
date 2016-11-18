@@ -80,6 +80,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
             return expReq;
         }
 
+        // TODO: Add tests for varying the various parameters.
+
         [Fact]
         /// <summary>
         /// Verify that the request sent to ES for a single term is being set up correctly.
@@ -107,7 +109,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
             //NOTE: this is when actualReq will get set.
             controller.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 term
             ); 
 
@@ -150,7 +153,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
             //Parameters don't matter in this case...
             SiteWideSearchResults results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -173,7 +177,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
             //Parameters don't matter in this case...
             SiteWideSearchResults results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -196,7 +201,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
             //Parameters don't matter in this case...
             SiteWideSearchResults results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -219,7 +225,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
             //Parameters don't matter in this case...
             SiteWideSearchResults results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -255,7 +262,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
 
             //Parameters don't matter in this case...
             SiteWideSearchResults results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -307,7 +315,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
                 // Parameters don't matter, and for this test we don't care about saving the results
                 () =>
                     ctrl.Get (
-                        "cgov_en",
+                        "cgov",
+                        "en",
                         "breast cancer"
                     )
                 );
@@ -343,6 +352,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
                 () =>
                     ctrl.Get (
                         collectionValue,
+                        "en",
                         "some term"
                     )
                 );
@@ -377,6 +387,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
                 () =>
                     ctrl.Get (
                         "some collection",
+                        "en",
                         termValue
                     )
                 );

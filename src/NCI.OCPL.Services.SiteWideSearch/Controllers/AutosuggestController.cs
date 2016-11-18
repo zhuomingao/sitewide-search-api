@@ -16,6 +16,9 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
     [Route("[controller]")]
     public class AutosuggestController : Controller
     {
+        // Static to limit to a single instance (can't do const for non-scalar types)
+        static readonly string[] validLanguages = {"en", "es"};
+
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<AutosuggestController> _logger;
 
@@ -29,7 +32,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         /// <summary>
         /// Retrieves a collection of potential search terms based on the value passed as term.
         /// </summary>
-        /// <param name="collection">The search collection/strategy to use.  This defines the ES template to use.</param>
+        /// <param name="collection">The search collection/strategy to use. This defines the ES template to use.</param>
+        /// <param name="language">The language to use. Only "en" and "es" are currently supported.</param>
         /// <param name="term">The search term to use as a basis for search terms</param>
         /// <param name="size">The maximum number of results to return.</param>
         /// <returns>A Suggestions collection of Suggestion objects.</returns>
@@ -37,9 +41,11 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         /// Collection is of the form {sitename}_{lang_code}.  Currently, {sitename} is always "cgov" and {lang_code} may
         /// be either "en" (English) or "es" (Español).
         /// </remarks>
-        [HttpGet("{collection}/{term}")]
+        [HttpGet("{collection}/{language}/{term}")]
+
         public Suggestions Get(
             string collection,
+            string language,
             string term,
             [FromQuery] int size = 10 
             )
@@ -47,19 +53,20 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             if (string.IsNullOrWhiteSpace(collection))
                 throw new APIErrorException(400, "You must supply a language and term");
 
-            //TODO: Validate language
+            if(!validLanguages.Contains(language))
+                throw new APIErrorException(400, "Not a valid language code.");
 
             if (string.IsNullOrWhiteSpace(term))
                 throw new APIErrorException(400, "You must supply a search term");
 
             // Setup our template name based on the collection name.  Template name is the directory the
-            // file is stored in, an underscore, the template name prefix (search), an underscore
-            // and then the name of the collection (e.g cgov_en, cgov_es, doc_en)
-            string templateName = "autosg_suggest_" + collection;
+            // file is stored in, an underscore, the template name prefix (search), an underscore,
+            // the name of the collection (only "cgov" at this time), another underscore and then
+            // the language code (either "en" or "es").
+            string templateName = String.Format("autosg_suggest_{0}_{1}", collection, language);
             
 
             //TODO: Catch Exception
-            //TODO: Return List<Suggestion>
             var response = _elasticClient.SearchTemplate<Suggestion>(sd => sd
                 .Index("autosg")
                 .File(templateName)

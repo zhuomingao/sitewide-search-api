@@ -35,14 +35,16 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
         /// Gets the results of a search
         /// </summary>
         /// <param name="collection">The search collection/strategy to use.  This defines the ES template to use.</param>
+        /// <param name="language">The language to use. Only "en" and "es" are currently supported.</param>
         /// <param name="term">The search term to search for</param>
         /// <param name="pagenum">The results page to retrieve</param>
         /// <param name="numperpage">The number of items to retrieve per page</param>
         /// <param name="site">An optional parameter used to limit the number of items returned based on site.</param>
         /// <returns>A SiteWideSearchResults collection object</returns>
-        [HttpGet("{collection}/{term}")]
+        [HttpGet("{collection}/{language}/{term}")]
         public SiteWideSearchResults Get(
             string collection, 
+            string language,
             string term,             
             [FromQuery] int from = 0,
             [FromQuery] int size = 10,
@@ -60,9 +62,10 @@ namespace NCI.OCPL.Services.SiteWideSearch.Controllers
             //_logger.LogInformation("Search Request -- Term: {0}, Page{1} ", term, pagenum);
 
             // Setup our template name based on the collection name.  Template name is the directory the
-            // file is stored in, an underscore, the template name prefix (search), an underscore
-            // and then the name of the collection (e.g cgov_en, cgov_es, doc_en)
-            string templateName = "cgov_search_" + collection;
+            // file is stored in, an underscore, the template name prefix (search), an underscore,
+            // the name of the collection (only "cgov" or "doc" at this time), another underscore and then
+            // the language code (either "en" or "es").
+            string templateName = String.Format("cgov_search_{0}_{1}", collection, language);
 
             //TODO: Make this a parameter that can take in a list of fields and turn them
             //into this string.

@@ -47,6 +47,37 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
     /// map the responses from ES into the correct response from the AutosuggestController
     /// </summary>
     public class Get_DataMapTests {
+
+        /// <summary>
+        /// Helper method to build a SearchTemplateRequest for testing purposes.
+        /// </summary>
+        /// <param name="index">The index to fetch from</param>
+        /// <param name="file">The template file to use</param>
+        /// <param name="term">The search term we are looking for</param>
+        /// <param name="size">The result set size</param>
+        /// <param name="fields">The fields we are requesting</param>
+        /// <param name="site">The sites to filter the results by</param>
+        /// <returns>A SearchTemplateRequest</returns>
+        private SearchTemplateRequest<Suggest> GetSearchRequest(
+            string index,
+            string file,
+            string term,
+            int size,
+            string fields,
+            string site
+        ) {
+
+            SearchTemplateRequest<Suggest> expReq = new SearchTemplateRequest<Suggest>(index){
+                File = file
+            };
+
+            expReq.Params = new Dictionary<string, object>();
+            expReq.Params.Add("searchstring", term);
+            expReq.Params.Add("my_size", size);
+
+            return expReq;
+        }
+
         [Fact]
         /// <summary>
         /// Test that the list of results exists.
@@ -62,7 +93,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 
             //Parameters don't matter in this case...
             Suggestions results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -85,7 +117,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 
             //Parameters don't matter in this case...
             Suggestions results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -107,7 +140,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 
             //Parameters don't matter in this case...
             Suggestions results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -130,7 +164,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 
             //Parameters don't matter in this case...
             Suggestions results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -159,7 +194,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 
             //Parameters don't matter in this case...
             Suggestions results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
@@ -181,12 +217,66 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
 
             //Parameters don't matter in this case...
             Suggestions results = ctrl.Get(
-                "cgov_en",
+                "cgov",
+                "en",
                 "breast cancer"
             );
 
             Assert.Equal(222, results.Total);
         }
+
+        // TODO: Add tests for varying the various parameters.
+        // TODO: Move Check_For_Correct_Request_Data() and variants
+        //       to a separate class 
+
+        [Fact]
+        /// <summary>
+        /// Verify that the request sent to ES for a single term is being set up correctly.
+        /// </summary>
+        public void Check_For_Correct_Request_Data()
+        {
+            string term = "Breast Cancer";
+
+            ISearchTemplateRequest actualReq = null;
+
+            //Setup the client with the request handler callback to be executed later.
+            IElasticClient client = 
+                ElasticTools.GetMockedSearchTemplateClient<Suggestion>(
+                    req => actualReq = req,
+                    resMock => {
+                        //Make sure we say that the response is valid.
+                        resMock.Setup(res => res.IsValid).Returns(true);
+                    } // We don't care what the response looks like.
+                );
+
+            AutosuggestController controller = new AutosuggestController(
+                client,
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            //NOTE: this is when actualReq will get set.
+            controller.Get(
+                "cgov",
+                "en",
+                term
+            ); 
+
+            SearchTemplateRequest<Suggest> expReq = GetSearchRequest(
+                "cgov",                 // Search index to look in.
+                "autosg_suggest_cgov_en",  // Template name, preceded by the name of the directory it's stored in.
+                term,                   // Search term
+                10,                     // Max number of records to retrieve.
+                "\"url\", \"title\", \"metatag-description\", \"metatag-dcterms-type\"",
+                "all"
+            );
+
+            Assert.Equal(
+                expReq, 
+                actualReq,
+                new ElasticTools.SearchTemplateRequestComparer()
+            );
+        }
+
     }
 
     /// <summary>
@@ -219,7 +309,8 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
                 // Parameters don't matter, and for this test we don't care about saving the results
                 () =>
                     ctrl.Get (
-                        "cgov_en",
+                        "cgov",
+                        "en",
                         "breast cancer"
                     )
                 );
@@ -253,11 +344,49 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
                 () =>
                     ctrl.Get (
                         collectionValue,
+                        "en",
                         "some term"
                     )
                 );
 
             // Search without a collection should report bad request (400) 
+            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
+        }
+
+
+        [Theory]
+        [InlineData("english")] // Language that "sounds" right but isn't.
+        [InlineData("spanish")]
+        [InlineData(null)]
+        [InlineData("")] // Empty string
+        [InlineData("        ")] // Spaces
+        [InlineData("\t")]
+        [InlineData("\n")]
+        [InlineData("\r")]
+        /// <summary>
+        /// Verify that controller throws the correct exception when an invalid language   is specified.
+        /// </summary>
+        /// <param name="termValue">A string the text to search for.</param>
+        public void Get_InvalidLanguage_ReturnsError(string language)
+        {
+            string testFile = "Search.CGov.En.BreastCancer.json";
+
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(testFile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            Exception ex = Assert.Throws<APIErrorException>(
+                // Parameters don't matter, and for this test we don't care about saving the results
+                () =>
+                    ctrl.Get (
+                        "cgov",
+                        language,
+                        "some term"
+                    )
+                );
+
+            // Search without something to search for should report bad request (400) 
             Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
         }
 
@@ -287,6 +416,7 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
                 () =>
                     ctrl.Get (
                         "some collection",
+                        "en",
                         termValue
                     )
                 );
@@ -294,7 +424,6 @@ namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
             // Search without something to search for should report bad request (400) 
             Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
         }
-
 
     }
 
