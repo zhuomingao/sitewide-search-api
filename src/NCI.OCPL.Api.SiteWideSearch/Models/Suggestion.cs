@@ -1,6 +1,6 @@
 using Nest;
 
-namespace NCI.OCPL.Services.SiteWideSearch
+namespace NCI.OCPL.Api.SiteWideSearch
 {
     [ElasticsearchType(Name = "terms")]
     public class Suggestion

@@ -12,7 +12,7 @@ using Nest;
 using Elasticsearch.Net;
 using System.Text;
 
-namespace NCI.OCPL.Services.SiteWideSearch
+namespace NCI.OCPL.Api.SiteWideSearch
 {
     public class Startup
     {

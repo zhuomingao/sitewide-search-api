@@ -16,9 +16,9 @@ using Xunit;
 
 using NCI.OCPL.Utils.Testing;
 
-using NCI.OCPL.Services.SiteWideSearch.Controllers;
+using NCI.OCPL.Api.SiteWideSearch.Controllers;
 
-namespace NCI.OCPL.Services.SiteWideSearch.Tests.AutoSuggestControllerTests
+namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
 {
     /// <summary>
     /// Defines Tests for the AutosuggestController class

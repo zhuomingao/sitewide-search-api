@@ -1,7 +1,7 @@
 using System;
 
 
-namespace NCI.OCPL.Services.SiteWideSearch
+namespace NCI.OCPL.Api.SiteWideSearch
 {
     /// <summary>
     /// Represents an Exception to be thrown when a configuration error occurs.

@@ -7,7 +7,7 @@
         {
             "taskName": "build",
             "args": [
-                "${workspaceRoot}/src/NCI.OCPL.Services.SiteWideSearch/project.json"
+                "${workspaceRoot}/src/NCI.OCPL.Api.SiteWideSearch/project.json"
             ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
@@ -15,7 +15,7 @@
         {
             "taskName": "test",
             "args": [
-                "${workspaceRoot}/test/NCI.OCPL.Services.SiteWideSearch.Tests/project.json"
+                "${workspaceRoot}/test/NCI.OCPL.Api.SiteWideSearch.Tests/project.json"
             ],
             "isBuildCommand": false,
             "problemMatcher": "$msCompile"            

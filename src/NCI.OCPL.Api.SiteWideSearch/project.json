@@ -37,7 +37,7 @@
   "buildOptions": {
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
-    "outputName": "NCI.OCPL.Services.SiteWideSearch",
+    "outputName": "NCI.OCPL.Api.SiteWideSearch",
     "debugType": "portable"
   },
 
@@ -61,6 +61,6 @@
   },
 
   "tooling": {
-    "defaultNamespace": "NCI.OCPL.Services.SiteWideSearch"
+    "defaultNamespace": "NCI.OCPL.Api.SiteWideSearch"
   }
 }

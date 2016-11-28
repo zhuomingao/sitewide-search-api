@@ -2,7 +2,7 @@ using System;
 
 using Nest;
 
-namespace NCI.OCPL.Services.SiteWideSearch
+namespace NCI.OCPL.Api.SiteWideSearch
 {
     /// <summary>
     /// Represents a Single Site-Wide Search Result

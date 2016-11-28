@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NCI.OCPL.Services.SiteWideSearch
+namespace NCI.OCPL.Api.SiteWideSearch
 {
     public class SiteWideSearchResults
     {

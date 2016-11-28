@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 using Nest;
 
-namespace NCI.OCPL.Services.SiteWideSearch.Controllers
+namespace NCI.OCPL.Api.SiteWideSearch.Controllers
 {
     /// <summary>
     /// A Controller for handling requests for SiteWideSearch Suggestions

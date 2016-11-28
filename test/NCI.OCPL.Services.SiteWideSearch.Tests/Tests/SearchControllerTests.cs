@@ -34,9 +34,9 @@ using NCI.OCPL.Utils.Testing;
  funky looking.            
 */
 
-using NCI.OCPL.Services.SiteWideSearch.Controllers;
+using NCI.OCPL.Api.SiteWideSearch.Controllers;
 
-namespace NCI.OCPL.Services.SiteWideSearch.Tests.SearchControllerTests
+namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
 {
     /// <summary>
     /// Defines a class with all of the query tests for the get method to ensure that the 

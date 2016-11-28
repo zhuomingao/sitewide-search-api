@@ -2,7 +2,7 @@ using System;
 
 using Nest;
 
-namespace NCI.OCPL.Services.SiteWideSearch
+namespace NCI.OCPL.Api.SiteWideSearch
 {
     /// <summary>
     /// Represents an Exception Raised by the API to be returned to the consumer

@@ -6,9 +6,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/src/NCI.OCPL.Services.SiteWideSearch/bin/Debug/netcoreapp1.0/NCI.OCPL.Services.SiteWideSearch.dll",
+            "program": "${workspaceRoot}/src/NCI.OCPL.Api.SiteWideSearch/bin/Debug/netcoreapp1.0/NCI.OCPL.Api.SiteWideSearch.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/src/NCI.OCPL.Services.SiteWideSearch",
+            "cwd": "${workspaceRoot}/src/NCI.OCPL.Api.SiteWideSearch",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
