@@ -230,6 +230,9 @@ FakesAssemblies/
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
 
+#Visual Studio Launch Settings
+launchsettings.json
+
 # Paket dependency manager
 .paket/paket.exe
 
