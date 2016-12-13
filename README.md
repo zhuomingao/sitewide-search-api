@@ -44,12 +44,12 @@ Multiple URIs are separated by a comma.  (e.g. "https://fred:9200, https://georg
 
 Reference: [Microsoft Configuration introduction](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration)
 
-+## Build
+## Build
 ```
-+cd sitewide-search-api
-+dotnet restore #install NuGet packages
-+cd test/NCI.OCPL.Api.SiteWideSearch.Tests
-+dotnet build # builds all projects (test are dependent on src)
-+dotnet test #runs unit tests
+cd sitewide-search-api
+dotnet restore #install NuGet packages
+cd test/NCI.OCPL.Api.SiteWideSearch.Tests
+dotnet build # builds all projects (test are dependent on src)
+dotnet test #runs unit tests
 '''
 +
