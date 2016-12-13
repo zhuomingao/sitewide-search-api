@@ -43,3 +43,11 @@ Each URI must include a protocol (http or https), a server name, and optionally,
 Multiple URIs are separated by a comma.  (e.g. "https://fred:9200, https://george:9201, https://ginny:9202")
 
 Reference: [Microsoft Configuration introduction](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration)
+
++## Build
++cd sitewide-search-api
++dotnet restore #install NuGet packages
++cd test/NCI.OCPL.Api.SiteWideSearch.Tests
++dotnet build # builds all projects (test are dependent on src)
++dotnet test #runs unit tests
++
