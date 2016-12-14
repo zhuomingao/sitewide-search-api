@@ -38,7 +38,7 @@
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
     "outputName": "NCI.OCPL.Api.SiteWideSearch",
-    "debugType": "portable"
+    "debugType": "full"
   },
 
   "runtimeOptions": {
