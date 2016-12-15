@@ -51,5 +51,9 @@ dotnet restore #install NuGet packages
 cd test/NCI.OCPL.Api.SiteWideSearch.Tests
 dotnet build # builds all projects (test are dependent on src)
 dotnet test #runs unit tests
-'''
-+
+```
+
+## How to run from a docker container
+```
+docker run -d -p hostportnumber:containerportnumber --name containername -e Elasticsearch__Servers="https://servername:port" -e Elasticsearch__Userid="XXX" -e Elasticsearch__Password="XXX"  nciwebcomm/sitewide-search-apiImagename
+```
