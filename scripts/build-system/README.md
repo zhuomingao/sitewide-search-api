@@ -28,7 +28,7 @@ site wide search project.
   1. Click the "Add build step" button.
   2. Select "Process Job DSLs."
   3. Verify that "Look on Filesystem" is selected.
-  4. For "DSL Scripts," specify "setup.job" (the actual script file will be downloaded automatically)
+  4. For "DSL Scripts," specify "scripts/build-system/setup.job" (the actual script file will be downloaded automatically)
 4. Click the "Save" button.
 
 ## GitHub Credentials

@@ -6,18 +6,18 @@
 */
 
 
-def folderName  = 'BestBets-Svc'    // Jenkins folder where the jbos will be placed.
+def folderName  = 'Sitewide-Search'    // Jenkins folder where the jbos will be placed.
 
-def sourcePath = 'src/NCI.OCPL.Api.BestBets'       // Source code path relative to the working directory
-def testPath = 'test/NCI.OCPL.Api.BestBets.Tests'  // Unit test code path relative to the working directory  
+def sourcePath = 'src/NCI.OCPL.Api.SiteWideSearch'       // Source code path relative to the working directory
+def testPath = 'test/NCI.OCPL.Api.SiteWideSearch.Tests'  // Unit test code path relative to the working directory  
 
-def GH_REPO_NAME = 'bestbets-svc'    // The project's repository name (as used in the URL).
+def GH_REPO_NAME = 'sitewide-search-api'    // The project's repository name (as used in the URL).
 def GH_ORGANIZATION_NAME = 'NCIOCPL'   // GitHub Organization name (as used in the URL/userid).
 def GH_USER_KEY = 'NCIOCPL-GitHub'    // Jenkins ID of the credential string containing the GitHub userid which creates releases.
 def GH_USER_TOKEN_KEY = 'NCIOCPL-GitHub-Token'    // Jenkins ID of the credential string containing the GitHub access token for creating releases.
 
 def VERSION_NUMBER = '0.1.5'            // Project version number, following semantic versioning.
-def PROJECT_NAME = 'BestBets-Svc'     // Project name.
+def PROJECT_NAME = 'sitewide-search-api'     // Project name.
 
 def sourceRepository = "$GH_ORGANIZATION_NAME/$GH_REPO_NAME"
 
