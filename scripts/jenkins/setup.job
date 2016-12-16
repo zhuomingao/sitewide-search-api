@@ -1,0 +1,85 @@
+/*
+  Rather than store the scripts for every project in a single location, we instead create
+  a Jenkins folder for each project (ideally, this will be the name of the project).
+  Important: Avoid spaces in the folder name. This becomes part of the path name for the build
+  and some tools (e.g. the dotnet CLI) have problems with spaces in path names.
+*/
+
+
+def folderName  = 'Sitewide-Search'    // Jenkins folder where the jbos will be placed.
+
+def sourcePath = 'src/NCI.OCPL.Api.SiteWideSearch'       // Source code path relative to the working directory
+def testPath = 'test/NCI.OCPL.Api.SiteWideSearch.Tests'  // Unit test code path relative to the working directory  
+
+def GH_REPO_NAME = 'sitewide-search-api'    // The project's repository name (as used in the URL).
+def GH_ORGANIZATION_NAME = 'NCIOCPL'   // GitHub Organization name (as used in the URL/userid).
+def GH_USER_KEY = 'NCIOCPL-GitHub'    // Jenkins ID of the credential string containing the GitHub userid which creates releases.
+def GH_USER_TOKEN_KEY = 'NCIOCPL-GitHub-Token'    // Jenkins ID of the credential string containing the GitHub access token for creating releases.
+
+def VERSION_NUMBER = '0.1.5'            // Project version number, following semantic versioning.
+def PROJECT_NAME = 'sitewide-search-api'     // Project name.
+
+def sourceRepository = "$GH_ORGANIZATION_NAME/$GH_REPO_NAME"
+
+
+// Name of the jobs to be created. Also serves as the basis of the jobs' individual
+// implementation scripts.
+def devBuild = 'dev-build'
+def releaseBuild = 'release-build'
+def releaseToStage = 'release-to-stage'
+def releaseToProd = 'release-to-prod'
+
+// Create the folder where all the jobs will be created.
+folder(folderName)
+
+
+job("${folderName}/${devBuild}") {
+    scm {
+        github(sourceRepository)
+    }
+    steps {
+        shell("./build/${devBuild}.sh ${sourcePath} ${testPath}")
+    }
+}
+
+job("${folderName}/${releaseBuild}") {
+    // Set up GitHub security token as a variable in the job.
+    // It ends up being passed to the shell script. 
+    wrappers {
+        credentialsBinding {
+            string('RELEASE_TOKEN', GH_USER_TOKEN_KEY)
+        }
+        environmentVariables {
+            envs(
+                GH_ORGANIZATION_NAME : GH_ORGANIZATION_NAME,
+                GH_REPO_NAME : GH_REPO_NAME,
+                VERSION_NUMBER : VERSION_NUMBER,
+                PROJECT_NAME : PROJECT_NAME
+            )
+        }
+    }
+    scm {
+        github(sourceRepository)
+    }
+    steps {
+        shell("./build/${releaseBuild}.sh ${sourcePath} ${testPath}" + ' $RELEASE_TOKEN')
+    }
+}
+
+job("${folderName}/${releaseToStage}") {
+    scm {
+        github(sourceRepository)
+    }
+    steps {
+        shell("./build/${releaseToStage}.sh ${sourcePath} ${testPath}")
+    }
+}
+
+job("${folderName}/${releaseToProd}") {
+    scm {
+        github(sourceRepository)
+    }
+    steps {
+        shell("./build/${releaseToProd}.sh ${sourcePath} ${testPath}")
+    }
+}
