@@ -16,9 +16,16 @@ dotnet restore
 
 rem Build and run unit tests.
 echo Executing unit tests
+set ERRORS=
 for /d %%i in (%TEST_ROOT%\*) do (
-    echo %%i
     dotnet test %%i
+    if errorlevel 1 set ERRORS=true
+)
+
+if '%ERRORS%' EQU '' (
+    echo All tests passed.
+) ELSE (
+    echo Errors have occured.
 )
 
 rem Put things back the way we found them.
