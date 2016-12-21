@@ -38,7 +38,7 @@ job("${folderName}/${devBuild}") {
         github(sourceRepository)
     }
     steps {
-        shell("./build/${devBuild}.sh ${sourcePath} ${testPath}")
+        shell("./scripts/build/${devBuild}.sh")
     }
 }
 
@@ -62,7 +62,7 @@ job("${folderName}/${releaseBuild}") {
         github(sourceRepository)
     }
     steps {
-        shell("./build/${releaseBuild}.sh ${sourcePath} ${testPath}" + ' $RELEASE_TOKEN')
+        shell("./scripts/build/${releaseBuild}.sh ${sourcePath} ${testPath}" + ' $RELEASE_TOKEN')
     }
 }
 
@@ -71,7 +71,7 @@ job("${folderName}/${releaseToStage}") {
         github(sourceRepository)
     }
     steps {
-        shell("./build/${releaseToStage}.sh ${sourcePath} ${testPath}")
+        shell("./scripts/build/${releaseToStage}.sh ${sourcePath} ${testPath}")
     }
 }
 
@@ -80,6 +80,6 @@ job("${folderName}/${releaseToProd}") {
         github(sourceRepository)
     }
     steps {
-        shell("./build/${releaseToProd}.sh ${sourcePath} ${testPath}")
+        shell("./scripts/build/${releaseToProd}.sh ${sourcePath} ${testPath}")
     }
 }
