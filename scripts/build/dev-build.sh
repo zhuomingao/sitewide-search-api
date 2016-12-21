@@ -15,10 +15,22 @@ echo Restoring packages
 dotnet restore
 
 # Build and run unit tests.
+ERRORS=0
 echo Executing unit tests
 for test in $(ls -d ${TEST_ROOT}/*/); do
     dotnet test $test
+
+    # Check for errors
+    if [ $? != 0 ]; then
+        export ERRORS=1
+    fi
 done
+
+# If any unit tests failed, abort the operation.
+if [ $ERRORS == 1 ]; then
+    echo Errors have occured.
+    exit 127
+fi
 
 # Put things back the way we found them.
 cd $CURDIR
