@@ -9,12 +9,13 @@ site wide search project.
 * [Credentials Binding Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Credentials+Binding+Plugin) (Included w/ Jenkins'
     recommended plugins)
 * [EnvInject Plugin](https://wiki.jenkins-ci.org/display/JENKINS/EnvInject+Plugin)
+* [GitHub Release Tool](https://github.com/aktau/github-release/)
 
 
 ## Files
 * **setup.job** - Job definition file, written in the [Job DSL](https://wiki.jenkins-ci.org/display/JENKINS/Job+DSL+Plugin).
     This is the "Seed Job" responsible for installing the other jobs in Jenkins.
-* **<TASK>.sh** - The shell script responsible for performing the work needed for a specific task.
+* **&lt;TASK&gt;.sh** - The shell script responsible for performing the work needed for a specific task.
 
 ## Installing the seed job.
 1. Create a new FreeStyle job.
