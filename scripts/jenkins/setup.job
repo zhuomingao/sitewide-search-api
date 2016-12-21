@@ -6,7 +6,7 @@
 */
 
 
-def folderName  = 'Sitewide-Search'    // Jenkins folder where the jbos will be placed.
+def folderName  = '_Elastic-Search-API/_lower/Sitewide-Search-folder'    // Jenkins folder where the jbos will be placed.
 
 def sourcePath = 'src/NCI.OCPL.Api.SiteWideSearch'       // Source code path relative to the working directory
 def testPath = 'test/NCI.OCPL.Api.SiteWideSearch.Tests'  // Unit test code path relative to the working directory  
