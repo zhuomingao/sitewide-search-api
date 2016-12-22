@@ -6,7 +6,7 @@
 */
 
 
-def folderName  = '_Elastic-Search-API/_lower/Sitewide-Search-folder'    // Jenkins folder where the jbos will be placed.
+def folderName  = 'sitewide-search-api'    // Main folder where the jbos will be placed.
 
 def sourcePath = 'src/NCI.OCPL.Api.SiteWideSearch'       // Source code path relative to the working directory
 def testPath = 'test/NCI.OCPL.Api.SiteWideSearch.Tests'  // Unit test code path relative to the working directory  
@@ -29,20 +29,17 @@ def releaseBuild = 'release-build'
 def releaseToStage = 'release-to-stage'
 def releaseToProd = 'release-to-prod'
 
-// Create the folder where all the jobs will be created.
-folder(folderName)
 
-
-job("${folderName}/${devBuild}") {
+job("${folderName}/_lower/${devBuild}") {
     scm {
         github(sourceRepository)
     }
     steps {
-        shell("./scripts/build/${devBuild}.sh")
+        shell("./tools/build/${devBuild}.sh")
     }
 }
 
-job("${folderName}/${releaseBuild}") {
+job("${folderName}/_lower/${releaseBuild}") {
     // Set up GitHub security token as a variable in the job.
     // It ends up being passed to the shell script. 
     wrappers {
@@ -62,24 +59,24 @@ job("${folderName}/${releaseBuild}") {
         github(sourceRepository)
     }
     steps {
-        shell("./scripts/build/${releaseBuild}.sh ${sourcePath} ${testPath}" + ' $RELEASE_TOKEN')
+        shell("./tools/build/${releaseBuild}.sh ${sourcePath} ${testPath}" + ' $RELEASE_TOKEN')
     }
 }
 
-job("${folderName}/${releaseToStage}") {
+job("${folderName}/_upper/${releaseToStage}") {
     scm {
         github(sourceRepository)
     }
     steps {
-        shell("./scripts/build/${releaseToStage}.sh ${sourcePath} ${testPath}")
+        shell("./tools/build/${releaseToStage}.sh ${sourcePath} ${testPath}")
     }
 }
 
-job("${folderName}/${releaseToProd}") {
+job("${folderName}/_upper/${releaseToProd}") {
     scm {
         github(sourceRepository)
     }
     steps {
-        shell("./scripts/build/${releaseToProd}.sh ${sourcePath} ${testPath}")
+        shell("./tools/build/${releaseToProd}.sh ${sourcePath} ${testPath}")
     }
 }
