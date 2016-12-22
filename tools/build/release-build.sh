@@ -55,34 +55,11 @@ zip -r project-release.zip .
 cd $PROJECT_HOME
 
 ## Create GitHub release with build artifacts.
-echo "Creating a new release in github"
+echo "Creating release '${VERSION_NUMBER}' in github"
 github-release release --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${VERSION_NUMBER}"
 
 echo "Uploading the artifacts into github"
 github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${PROJECT_NAME}-${VERSION_NUMBER}.zip" --file $TMPDIR/project-release.zip
 
-## TODO
-
-#### Clean up
-###rm -rf $TMPDIR
-#### Publish to temporary location.
-###dotnet restore
-###dotnet build $TEST_PATH # Build unit test and dependencies.
-###dotnet test $TEST_PATH
-###dotnet publish -o $TMPDIR
-###
-#### Create archive for uploading to GitHub.  Creating it in the
-#### Publishing folder eliminates the parent directory path.
-###echo "Creating release archive"
-###cd $TMPDIR
-###zip -r project-release.zip .
-###cd $PROJECT_DIR
-###
-###echo "Creating a new release in github"
-###github-release release --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${VERSION_NUMBER}"
-###
-###echo "Uploading the artifacts into github"
-###github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${PROJECT_NAME}-${VERSION_NUMBER}.zip" --file $TMPDIR/project-release.zip
-###
-#### Clean up
-###rm -rf $TMPDIR
+# Clean up
+rm -rf $TMPDIR
