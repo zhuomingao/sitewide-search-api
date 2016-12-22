@@ -55,7 +55,7 @@ zip -r project-release.zip .
 cd $PROJECT_HOME
 
 
-TODO:
+## TODO
 
 ###echo "Creating a new release in github"
 ###github-release release --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${VERSION_NUMBER}"

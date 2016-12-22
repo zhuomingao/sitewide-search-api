@@ -31,6 +31,7 @@ def releaseToProd = 'release-to-prod'
 
 
 job("${folderName}/_lower/${devBuild}") {
+    label('!master') // Run anywhere except the master
     scm {
         github(sourceRepository)
     }
@@ -55,15 +56,17 @@ job("${folderName}/_lower/${releaseBuild}") {
             )
         }
     }
+    label('!master') // Run anywhere except the master
     scm {
         github(sourceRepository)
     }
     steps {
-        shell("./tools/build/${releaseBuild}.sh ${sourcePath} ${testPath}" + ' $RELEASE_TOKEN')
+        shell("./tools/build/${releaseBuild}.sh" + ' $RELEASE_TOKEN')
     }
 }
 
 job("${folderName}/_upper/${releaseToStage}") {
+    label('!master') // Run anywhere except the master
     scm {
         github(sourceRepository)
     }
@@ -73,6 +76,7 @@ job("${folderName}/_upper/${releaseToStage}") {
 }
 
 job("${folderName}/_upper/${releaseToProd}") {
+    label('!master') // Run anywhere except the master
     scm {
         github(sourceRepository)
     }
