@@ -123,7 +123,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
                 "\"url\", \"title\", \"metatag-description\", \"metatag-dcterms-type\"",
                 "all"
             );
-
+            Assert.True(false);
             Assert.Equal(
                 expReq, 
                 actualReq,
