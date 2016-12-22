@@ -54,15 +54,15 @@ cd $TMPDIR
 zip -r project-release.zip .
 cd $PROJECT_HOME
 
+## Create GitHub release with build artifacts.
+echo "Creating a new release in github"
+github-release release --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${VERSION_NUMBER}"
+
+echo "Uploading the artifacts into github"
+github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${PROJECT_NAME}-${VERSION_NUMBER}.zip" --file $TMPDIR/project-release.zip
 
 ## TODO
 
-###echo "Creating a new release in github"
-###github-release release --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${VERSION_NUMBER}"
-###
-###echo "Uploading the artifacts into github"
-###github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --tag ${VERSION_NUMBER} --name "${PROJECT_NAME}-${VERSION_NUMBER}.zip" --file $TMPDIR/project-release.zip
-###
 #### Clean up
 ###rm -rf $TMPDIR
 #### Publish to temporary location.
