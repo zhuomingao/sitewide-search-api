@@ -64,8 +64,10 @@ github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --ta
 # Clean up
 rm -rf $TMPDIR
 
-# Create and push SDK image
-#docker build --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-svc:sdk -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .
+# Create SDK Docker image
+export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-api:sdk -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .)
+docker tag $IMG_ID nciwebcomm/sitewide-search-svc:sdk-${VERSION_NUMBER}
 
-# Create and push Release image
-#docker build --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-svc:sdk -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.Release .
+# Create Release Docker image
+export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-api:release -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.Release .)
+docker tag $IMG_ID nciwebcomm/sitewide-search-svc:release-${VERSION_NUMBER}
