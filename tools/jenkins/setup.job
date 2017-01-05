@@ -15,6 +15,7 @@ def GH_REPO_NAME = 'sitewide-search-api'    // The project's repository name (as
 def GH_ORGANIZATION_NAME = 'NCIOCPL'   // GitHub Organization name (as used in the URL/userid).
 def GH_USER_KEY = 'NCIOCPL-GitHub'    // Jenkins ID of the credential string containing the GitHub userid which creates releases.
 def GH_USER_TOKEN_KEY = 'NCIOCPL-GitHub-Token'    // Jenkins ID of the credential string containing the GitHub access token for creating releases.
+def DOCKER_USER_KEY = 'NCIOCPL-Docker-User'  // Docker ID of the credential containing the login/password for the automation Docker Hub account.
 
 def VERSION_NUMBER = '0.1.5'            // Project version number, following semantic versioning.
 def PROJECT_NAME = 'sitewide-search-api'     // Project name.
@@ -46,6 +47,7 @@ job("${folderName}/_lower/${releaseBuild}") {
     wrappers {
         credentialsBinding {
             string('RELEASE_TOKEN', GH_USER_TOKEN_KEY)
+            usernamePassword('DOCKER_USERNAME', 'DOCKER_PASSWORD', DOCKER_USER_KEY)
         }
         environmentVariables {
             envs(

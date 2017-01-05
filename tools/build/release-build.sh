@@ -7,6 +7,8 @@
 # GH_REPO_NAME - The repository where the build should be created.
 # VERSION_NUMBER - Semantic version number.
 # PROJECT_NAME - Project name
+# DOCKER_USERNAME - Docker login ID for publishing images
+# DOCKER_PASSWORD - Docker password for publishing images
 
 export SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export PROJECT_HOME="$(cd $SCRIPT_PATH/../.. && pwd)"
@@ -64,6 +66,7 @@ github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --ta
 # Clean up
 rm -rf $TMPDIR
 
+docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 # Create SDK Docker image
 export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-api:sdk -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .)
