@@ -5,6 +5,7 @@
 # Required Enviroment Variables
 # GH_ORGANIZATION_NAME - The GitHub organization (or username) the repository belongs to. 
 # GH_REPO_NAME - The repository where the build should be created.
+# GITHUB_TOKEN -  GitHub security token for automated builds.
 # VERSION_NUMBER - Semantic version number.
 # PROJECT_NAME - Project name
 # DOCKER_USERNAME - Docker login ID for publishing images
@@ -17,9 +18,6 @@ export CURDIR=`pwd`
 
 
 echo Creating Release Build.
-
-export GITHUB_TOKEN=$1  # Make GitHub security token available to release tool.
-
 
 # Go to the project home foldder and restore packages
 cd $PROJECT_HOME
