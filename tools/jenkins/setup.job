@@ -32,6 +32,11 @@ def releaseToProd = 'release-to-prod'
 
 
 job("${folderName}/_lower/${devBuild}") {
+    triggers {
+        pollSCM {
+            scmpoll_spec("H 7-19 * * 1-5")
+        }
+    }
     label('!master') // Run anywhere except the master
     scm {
         github(sourceRepository)
