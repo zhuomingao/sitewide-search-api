@@ -30,7 +30,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
             _logger = logger;
         }
 
-        // GET search/cgov_en/lung+cancer
+        // GET search/cgov/en/lung+cancer
         /// <summary>
         /// Gets the results of a search
         /// </summary>
