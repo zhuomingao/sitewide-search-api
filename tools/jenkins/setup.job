@@ -16,6 +16,8 @@ def GH_ORGANIZATION_NAME = 'NCIOCPL'   // GitHub Organization name (as used in t
 def GH_USER_KEY = 'NCIOCPL-GitHub'    // Jenkins ID of the credential string containing the GitHub userid which creates releases.
 def GH_USER_TOKEN_KEY = 'NCIOCPL-GitHub-Token'    // Jenkins ID of the credential string containing the GitHub access token for creating releases.
 def DOCKER_USER_KEY = 'NCIOCPL-Docker-User'  // Docker ID of the credential containing the login/password for the automation Docker Hub account.
+def ES_READONLY_KEY = 'NCIOCPL-ES-ReadOnly-User'    // Read-only Elasticsearch login credentials (for search)
+def SSH_USER_KEY = 'NCIOCPL-Deployment-User'    // Jenkins ID of the text secret containing the name of deployment SSH user account.
 
 def VERSION_NUMBER = '0.1.5'            // Project version number, following semantic versioning.
 def PROJECT_NAME = 'sitewide-search-api'     // Project name.
@@ -37,7 +39,7 @@ job("${folderName}/_lower/${devBuild}") {
             scmpoll_spec("H 7-19 * * 1-5")
         }
     }
-    label('!master') // Run anywhere except the master
+    label('docker && linux && netcore-1.0.1') // Require Linux, Docker and .Net Coroe
     scm {
         github(sourceRepository)
     }
@@ -63,7 +65,7 @@ job("${folderName}/_lower/${releaseBuild}") {
             )
         }
     }
-    label('!master') // Run anywhere except the master
+    label('docker && linux && netcore-1.0.1') // Require Linux, Docker and .Net Coroe
     scm {
         github(sourceRepository)
     }
@@ -73,12 +75,29 @@ job("${folderName}/_lower/${releaseBuild}") {
 }
 
 job("${folderName}/_upper/${releaseToStage}") {
-    label('!master') // Run anywhere except the master
+    wrappers {
+        credentialsBinding {
+            usernamePassword('DOCKER_USER', 'DOCKER_PASS', DOCKER_USER_KEY)
+            usernamePassword('ELASTICSEARCH_SEARCH_USER', 'ELASTICSEARCH_SEARCH_PASSWORD', ES_READONLY_KEY)
+            string('SSH_USER', SSH_USER_KEY)
+        }
+        environmentVariables {
+            envs(
+                LIVE_API_HOST_PORT : 5008,
+                PREVIEW_API_HOST_PORT : 5009,
+
+                ELASTICSEARCH_SERVERS : "",
+                SERVER_LIST : "",
+                RELEASE_VERSION : "",
+            )
+        }
+    }
+    label('master') // Run anywhere except the master
     scm {
         github(sourceRepository)
     }
     steps {
-        shell("./tools/build/${releaseToStage}.sh ${sourcePath} ${testPath}")
+        shell("./tools/deploy/deploy-stage.sh")
     }
 }
 
