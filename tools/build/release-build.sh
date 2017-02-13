@@ -75,15 +75,15 @@ github-release upload --user ${GH_ORGANIZATION_NAME} --repo ${GH_REPO_NAME} --ta
 # Clean up
 rm -rf $TMPDIR
 
-docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY
 
 # Create SDK Docker image
-export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t ${IMAGE_NAME}:sdk -t ${IMAGE_NAME}:sdk-${VERSION_NUMBER} -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .)
-eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api sdk
-eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api sdk-${VERSION_NUMBER}
+docker build -q --build-arg version_number=${VERSION_NUMBER} -t ${IMAGE_NAME}:sdk -t ${IMAGE_NAME}:sdk-${VERSION_NUMBER} -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .
+eval $SCRIPT_PATH/publish-docker-image.sh ${IMAGE_NAME} sdk
+eval $SCRIPT_PATH/publish-docker-image.sh ${IMAGE_NAME} sdk-${VERSION_NUMBER}
 
 
 # Create Release Docker image
-export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t ${IMAGE_NAME}:runtime -t ${IMAGE_NAME}:runtime-${VERSION_NUMBER} -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.Runtime .)
-eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api runtime
-eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api runtime-${VERSION_NUMBER}
+docker build -q --build-arg version_number=${VERSION_NUMBER} -t ${IMAGE_NAME}:runtime -t ${IMAGE_NAME}:runtime-${VERSION_NUMBER} -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.Runtime .
+eval $SCRIPT_PATH/publish-docker-image.sh ${IMAGE_NAME} runtime
+eval $SCRIPT_PATH/publish-docker-image.sh ${IMAGE_NAME} runtime-${VERSION_NUMBER}
