@@ -15,6 +15,7 @@
 #   (NOTE: This is an NCI internal repository, not Docker Hub)
 #   DOCKER_USER - Userid for 
 #   DOCKER_PASS - Password for pulling the container image from the central repository.
+#   DOCKER_REGISTRY - Hostname of the NCI Docker registry.
 # 
 # Elastic Search credentials. Assumed to be the same for both live and preview.
 #   ELASTICSEARCH_SERVERS - Comma separated list of ES servers.
@@ -37,6 +38,7 @@ if [ -z "$LIVE_API_HOST_PORT" ]; then echo "LIVE_API_HOST_PORT not set, aborting
 if [ -z "$PREVIEW_API_HOST_PORT" ]; then echo "PREVIEW_API_HOST_PORT not set, aborting."; exit 1; fi
 if [ -z "$DOCKER_USER" ]; then echo "DOCKER_USER not set, aborting."; exit 1; fi
 if [ -z "$DOCKER_PASS" ]; then echo "DOCKER_PASS not set, aborting."; exit 1; fi
+if [ -z "$DOCKER_REGISTRY" ]; then echo "DOCKER_REGISTRY not set, aborting."; exit 1; fi
 if [ -z "$ELASTICSEARCH_SERVERS" ]; then echo "ELASTICSEARCH_SERVERS not set, aborting."; exit 1; fi
 if [ -z "$ELASTICSEARCH_SEARCH_USER" ]; then echo "ELASTICSEARCH_SEARCH_USER not set, aborting."; exit 1; fi
 if [ -z "$ELASTICSEARCH_SEARCH_PASSWORD" ]; then echo "ELASTICSEARCH_SEARCH_PASSWORD not set, aborting."; exit 1; fi
@@ -44,6 +46,8 @@ if [ -z "$SSH_USER" ]; then echo "SSH_USER not set, aborting."; exit 1; fi
 
 
 IFS=', ' read -r -a server_list <<< "$SERVER_LIST"
+
+export IMAGE_NAME="${DOCKER_REGISTRY}/ocpl/bestbets-api"
 
 api_instance_list=("live" "preview")
 
@@ -67,14 +71,14 @@ for server in "${server_list[@]}"
 do
 
     # Find out what images are already deployed for eventual cleanup.
-    oldImageList=$(ssh -q ${SSH_USER}@${server} ${RUN_LOCATION}/get-image-tag.sh nciwebcomm/sitewide-search-api)
+    oldImageList=$(ssh -q ${SSH_USER}@${server} ${RUN_LOCATION}/get-image-tag.sh ${IMAGE_NAME})
 
     # Stop existing API container
     ssh -q ${SSH_USER}@${server} ${RUN_LOCATION}/stop-api.sh
 
     # Pull image for new version (pull version-specific tag)
-    imageName="nciwebcomm/sitewide-search-api:runtime-${RELEASE_VERSION}"
-    ssh -q ${SSH_USER}@${server} ${RUN_LOCATION}/pull-image.sh $imageName $DOCKER_USER $DOCKER_PASS
+    imageName="${IMAGE_NAME}:runtime-${RELEASE_VERSION}"
+    ssh -q ${SSH_USER}@${server} ${RUN_LOCATION}/pull-image.sh $imageName $DOCKER_USER $DOCKER_PASS $DOCKER_REGISTRY
 
     # Create scripts for running each instance of the API (useful for manual restarts).
     for instance in "${api_instance_list[@]}"
@@ -87,7 +91,7 @@ do
             -e Elasticsearch__Servers=\"${ELASTICSEARCH_SERVERS}\" \
             -e Elasticsearch__Userid=\"${ELASTICSEARCH_SEARCH_USER}\" \
             -e Elasticsearch__Password=\"${ELASTICSEARCH_SEARCH_PASSWORD}\" \
-            nciwebcomm/sitewide-search-api:runtime-${RELEASE_VERSION}"
+            ${imageName}"
 
         # Create and launch script for running the API
         scriptName="${RUN_LOCATION}/sitewidesearch-api-${instance}.sh"

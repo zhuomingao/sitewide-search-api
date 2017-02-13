@@ -3,9 +3,12 @@
 IMAGE_NAME=$1
 DOCKER_USER=$2
 DOCKER_PASS=$3
+DOCKER_REGISTRY=$4
 if [ -z "$IMAGE_NAME" ]; then echo "Argument 1 must be the image name to retrieive, aborting."; exit 1; fi
 if [ -z "$DOCKER_USER" ]; then echo "Argument 2 must be the docker repository userid, aborting."; exit 1; fi
 if [ -z "$DOCKER_PASS" ]; then echo "Argument 3 must be the docker repository password, aborting."; exit 1; fi
+if [ -z "$DOCKER_REGISTRY" ]; then echo "Argument 3 must be the docker registry, aborting."; exit 1; fi
+
 
 docker login -u $DOCKER_USER -p $DOCKER_PASS
 

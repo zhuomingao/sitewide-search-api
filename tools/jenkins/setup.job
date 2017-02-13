@@ -22,7 +22,7 @@ def ES_READONLY_KEY = 'NCIOCPL-ES-ReadOnly-User'    // Read-only Elasticsearch l
 def SSH_USER_KEY = 'NCIOCPL-Deployment-User'    // Jenkins ID of the text secret containing the name of deployment SSH user account.
 // End secrets
 
-def VERSION_NUMBER = '0.1.5'            // Project version number, following semantic versioning.
+def VERSION_NUMBER = ''            // Project version number, following semantic versioning. (e.g. 0.1.5)
 def PROJECT_NAME = 'sitewide-search-api'     // Project name.
 
 def sourceRepository = "$GH_ORGANIZATION_NAME/$GH_REPO_NAME"
@@ -83,6 +83,7 @@ job("${folderName}/_upper/${releaseToStage}") {
         credentialsBinding {
             usernamePassword('DOCKER_USER', 'DOCKER_PASS', DOCKER_USER_KEY)
             usernamePassword('ELASTICSEARCH_SEARCH_USER', 'ELASTICSEARCH_SEARCH_PASSWORD', ES_READONLY_KEY)
+            string('DOCKER_REGISTRY', DOCKER_REGISTRY_KEY)           
             string('SSH_USER', SSH_USER_KEY)
         }
         environmentVariables {
