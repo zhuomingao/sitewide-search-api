@@ -10,7 +10,7 @@ if [ -z "$DOCKER_PASS" ]; then echo "Argument 3 must be the docker repository pa
 if [ -z "$DOCKER_REGISTRY" ]; then echo "Argument 3 must be the docker registry, aborting."; exit 1; fi
 
 
-docker login -u $DOCKER_USER -p $DOCKER_PASS
+docker login -u $DOCKER_USER -p $DOCKER_PASS $DOCKER_REGISTRY
 
 # Future: If docker adds a --quiet switch to pull, this would be a good place to use it.
 # See issue 13588: https://github.com/docker/docker/issues/13588
