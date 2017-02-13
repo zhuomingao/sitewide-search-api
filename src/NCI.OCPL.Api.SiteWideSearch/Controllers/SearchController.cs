@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
 using Nest;
@@ -17,6 +18,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
     public class SearchController : Controller
     {
         private readonly IElasticClient _elasticClient;
+        private readonly SearchIndexOptions _indexConfig;
         private readonly ILogger<SearchController> _logger;
 
         /// <summary>
@@ -24,9 +26,12 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
         /// </summary>
         /// <param name="elasticClient">An instance of an IElasticClient to use for connecting to the ElasticSearch cluster</param>
         /// <param name="logger">An instance of a ILogger to use for logging messages</param>
-        public SearchController(IElasticClient elasticClient, ILogger<SearchController> logger)
+        public SearchController(IElasticClient elasticClient,
+            IOptions<SearchIndexOptions> config,
+            ILogger<SearchController> logger)
         {
             _elasticClient = elasticClient;
+            _indexConfig = config.Value;
             _logger = logger;
         }
 
@@ -74,7 +79,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
 
             //thios Can throw exception
             var response = _elasticClient.SearchTemplate<SiteWideSearchResult>(sd => sd
-                .Index("cgov")
+                .Index(_indexConfig.AliasName)
                 .File(templateName)
                 .Params(pd => pd
                     .Add("my_value", term)

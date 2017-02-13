@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 
 using Microsoft.Extensions.Logging.Testing;
+using Microsoft.Extensions.Options;
 
 using Elasticsearch.Net;
 using Nest;
@@ -43,7 +44,8 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
     /// parameters passed into the SearchController are translated correctly into ES 
     /// requests.
     /// </summary>
-    public class Get_QueryTests {
+    public class Get_QueryTests : TestControllerBase
+    {
 
         /// <summary>
         /// Helper method to build a SearchTemplateRequest in a more compact manner
@@ -101,9 +103,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
                         resMock.Setup(res => res.IsValid).Returns(true);
                     } // We don't care what the response looks like.
                 );
-
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController controller = new SearchController(
                 client,
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -136,7 +139,8 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
     /// Defines a class with all of the data mapping tests to ensure we are able to correctly 
     /// map the responses from ES into the correct response from the SearchController
     /// </summary>
-    public class Get_DataMapTests {
+    public class Get_DataMapTests : TestControllerBase
+    {
 
         [Fact]
         /// <summary>
@@ -146,8 +150,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         {
             string testFile = "Search.CGov.En.BreastCancer.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -170,8 +176,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         {
             string testFile = "Search.CGov.En.NoResults.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -194,8 +202,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         {
             string testFile = "Search.CGov.En.BreastCancer.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -218,8 +228,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         {
             string testFile = "Search.CGov.En.BreastCancer.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -240,7 +252,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
     /// <summary>
     /// Class to encapsulate all support code for testing optional fields  
     /// </summary>
-    public class OptionalFieldTests
+    public class OptionalFieldTests : TestControllerBase
     {
         [Theory, MemberData(nameof(FieldData))]
         /// <summary>
@@ -255,8 +267,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         {
             string testFile = "Search.CGov.En.AbsentFields.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -291,7 +305,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
     /// <remarks>
     /// </remarks>
     /// </summary>
-    public class ErrorTests
+    public class ErrorTests : TestControllerBase
     {
 
         [Theory]
@@ -306,8 +320,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         /// <param name="expectedTerm">The expected term text</param>
         public void Handle_Failed_Query(int errorCode)
         {
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetErrorElasticClient(errorCode),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -342,8 +358,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
             // use of the actual content. 
             string testFile = "Search.CGov.En.BreastCancer.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 
@@ -377,8 +395,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         {
             string testFile = "Search.CGov.En.BreastCancer.json";
 
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
             SearchController ctrl = new SearchController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<SearchController>.Instance
             );
 

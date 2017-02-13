@@ -37,6 +37,9 @@ namespace NCI.OCPL.Api.SiteWideSearch
             //Turn on the OptionsManager that supports IOptions
             services.AddOptions();
 
+            // Add configuration mappings
+            services.Configure<SearchIndexOptions>(Configuration.GetSection("SearchIndexOptions"));
+
             // Create CORS policies.
             services.AddCors();
 
