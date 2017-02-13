@@ -47,7 +47,7 @@ if [ -z "$SSH_USER" ]; then echo "SSH_USER not set, aborting."; exit 1; fi
 
 IFS=', ' read -r -a server_list <<< "$SERVER_LIST"
 
-export IMAGE_NAME="${DOCKER_REGISTRY}/ocpl/bestbets-api"
+export IMAGE_NAME="${DOCKER_REGISTRY}/ocpl/sitewide-search-api"
 
 api_instance_list=("live" "preview")
 
