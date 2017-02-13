@@ -10,12 +10,23 @@
 # PROJECT_NAME - Project name
 # DOCKER_USERNAME - Docker login ID for publishing images
 # DOCKER_PASSWORD - Docker password for publishing images
+# DOCKER_REGISTRY - Hostname of the NCI Docker registry.
+
+if [ -z "$GH_ORGANIZATION_NAME" ]; then echo GH_ORGANIZATION_NAME not set; exit 1; fi
+if [ -z "$GH_REPO_NAME" ]; then echo GH_REPO_NAME not set; exit 1; fi
+if [ -z "$GITHUB_TOKEN" ]; then echo GITHUB_TOKEN not set; exit 1; fi
+if [ -z "$VERSION_NUMBER" ]; then echo VERSION_NUMBER not set; exit 1; fi
+if [ -z "$PROJECT_NAME" ]; then echo PROJECT_NAME not set; exit 1; fi
+if [ -z "$DOCKER_USERNAME" ]; then echo DOCKER_USERNAME not set; exit 1; fi
+if [ -z "$DOCKER_PASSWORD" ]; then echo DOCKER_PASSWORD not set; exit 1; fi
+if [ -z "$DOCKER_REGISTRY" ]; then echo DOCKER_REGISTRY not set; exit 1; fi
 
 export SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export PROJECT_HOME="$(cd $SCRIPT_PATH/../.. && pwd)"
 export TEST_ROOT=${PROJECT_HOME}/test
 export CURDIR=`pwd`
 
+export IMAGE_NAME="${DOCKER_REGISTRY}/ocpl/sitewide-search-api"
 
 echo Creating Release Build.
 
@@ -67,14 +78,12 @@ rm -rf $TMPDIR
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 # Create SDK Docker image
-export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-api:sdk -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .)
-docker tag $IMG_ID nciwebcomm/sitewide-search-api:sdk-${VERSION_NUMBER}
+export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t ${IMAGE_NAME}:sdk -t ${IMAGE_NAME}:sdk-${VERSION_NUMBER} -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.SDK .)
 eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api sdk
 eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api sdk-${VERSION_NUMBER}
 
 
 # Create Release Docker image
-export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t nciwebcomm/sitewide-search-api:runtime -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.Runtime .)
-docker tag $IMG_ID nciwebcomm/sitewide-search-api:runtime-${VERSION_NUMBER}
+export IMG_ID=$(docker build -q --build-arg version_number=${VERSION_NUMBER} -t ${IMAGE_NAME}:runtime -t ${IMAGE_NAME}:runtime-${VERSION_NUMBER} -f src/NCI.OCPL.Api.SiteWideSearch/Dockerfile/Dockerfile.Runtime .)
 eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api runtime
 eval $SCRIPT_PATH/publish-docker-image.sh nciwebcomm/sitewide-search-api runtime-${VERSION_NUMBER}

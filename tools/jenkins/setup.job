@@ -11,13 +11,16 @@ def folderName  = 'sitewide-search-api'    // Main folder where the jbos will be
 def sourcePath = 'src/NCI.OCPL.Api.SiteWideSearch'       // Source code path relative to the working directory
 def testPath = 'test/NCI.OCPL.Api.SiteWideSearch.Tests'  // Unit test code path relative to the working directory  
 
+// Secrets
 def GH_REPO_NAME = 'sitewide-search-api'    // The project's repository name (as used in the URL).
 def GH_ORGANIZATION_NAME = 'NCIOCPL'   // GitHub Organization name (as used in the URL/userid).
 def GH_USER_KEY = 'NCIOCPL-GitHub'    // Jenkins ID of the credential string containing the GitHub userid which creates releases.
 def GH_USER_TOKEN_KEY = 'NCIOCPL-GitHub-Token'    // Jenkins ID of the credential string containing the GitHub access token for creating releases.
-def DOCKER_USER_KEY = 'NCIOCPL-Docker-User'  // Docker ID of the credential containing the login/password for the automation Docker Hub account.
+def DOCKER_USER_KEY = 'NCIOCPL-Docker-User'     // Jenkins ID of the credential containing the login/password for the automation Docker registry account.
+def DOCKER_REGISTRY_KEY = 'NCIOCPL-Docker-Registry' // Jenkins ID of the string containing the name of the NCI docker registry.
 def ES_READONLY_KEY = 'NCIOCPL-ES-ReadOnly-User'    // Read-only Elasticsearch login credentials (for search)
 def SSH_USER_KEY = 'NCIOCPL-Deployment-User'    // Jenkins ID of the text secret containing the name of deployment SSH user account.
+// End secrets
 
 def VERSION_NUMBER = '0.1.5'            // Project version number, following semantic versioning.
 def PROJECT_NAME = 'sitewide-search-api'     // Project name.
@@ -54,6 +57,7 @@ job("${folderName}/_lower/${releaseBuild}") {
     wrappers {
         credentialsBinding {
             string('GITHUB_TOKEN', GH_USER_TOKEN_KEY)
+            string('DOCKER_REGISTRY', DOCKER_REGISTRY_KEY)
             usernamePassword('DOCKER_USERNAME', 'DOCKER_PASSWORD', DOCKER_USER_KEY)
         }
         environmentVariables {
@@ -107,6 +111,6 @@ job("${folderName}/_upper/${releaseToProd}") {
         github(sourceRepository)
     }
     steps {
-        shell("./tools/build/${releaseToProd}.sh ${sourcePath} ${testPath}")
+        shell("./tools/build/${releaseToProd}.sh")
     }
 }
