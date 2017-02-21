@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
 using Nest;
@@ -20,13 +21,17 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
         static readonly string[] validLanguages = {"en", "es"};
 
         private readonly IElasticClient _elasticClient;
+        private readonly AutosuggestIndexOptions _indexConfig;
         private readonly ILogger<AutosuggestController> _logger;
 
         public const string HEALTHY_STATUS = "alive!";
 
-        public AutosuggestController(IElasticClient elasticClient, ILogger<AutosuggestController> logger)
+        public AutosuggestController(IElasticClient elasticClient,
+            IOptions<AutosuggestIndexOptions> config,
+            ILogger<AutosuggestController> logger)
         {
             _elasticClient = elasticClient;
+            _indexConfig = config.Value;
             _logger = logger;
         }
 
@@ -70,7 +75,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
 
             //TODO: Catch Exception
             var response = _elasticClient.SearchTemplate<Suggestion>(sd => sd
-                .Index("autosg")
+                .Index(_indexConfig.AliasName)
                 .File(templateName)
                 .Params(pd => pd
                     .Add("searchstring", term)
@@ -109,7 +114,7 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
             IClusterHealthResponse response = _elasticClient.ClusterHealth(hd =>
             {
                 hd = hd
-                    .Index("autosg");
+                    .Index(_indexConfig.AliasName);
 
                 return hd;
             });

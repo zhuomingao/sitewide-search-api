@@ -39,6 +39,7 @@ namespace NCI.OCPL.Api.SiteWideSearch
 
             // Add configuration mappings
             services.Configure<SearchIndexOptions>(Configuration.GetSection("SearchIndexOptions"));
+            services.Configure<AutosuggestIndexOptions>(Configuration.GetSection("AutosuggestIndexOptions"));
 
             // Create CORS policies.
             services.AddCors();
