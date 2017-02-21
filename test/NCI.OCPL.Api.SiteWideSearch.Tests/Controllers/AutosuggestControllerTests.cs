@@ -427,4 +427,37 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
 
     }
 
+    public class HealthCheck
+    {
+        [Theory]
+        [InlineData("ESHealthData/green.json")]
+        [InlineData("ESHealthData/yellow.json")]
+        public void GetStatus_Healthy(string datafile)
+        {
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(datafile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            string status = ctrl.GetStatus();
+            Assert.Equal(AutosuggestController.HEALTHY_STATUS, status, ignoreCase: true);
+        }
+
+        [Theory]
+        [InlineData("ESHealthData/red.json")]
+        [InlineData("ESHealthData/unexpected.json")]   // i.e. "Unexpected color"
+        public void GetStatus_Unhealthy(string datafile)
+        {
+            AutosuggestController ctrl = new AutosuggestController(
+                ElasticTools.GetInMemoryElasticClient(datafile),
+                NullLogger<AutosuggestController>.Instance
+            );
+
+            APIErrorException ex = Assert.Throws<APIErrorException>(() => ctrl.GetStatus());
+
+            Assert.Equal(500, ex.HttpStatusCode);
+        }
+
+    }
+
 }

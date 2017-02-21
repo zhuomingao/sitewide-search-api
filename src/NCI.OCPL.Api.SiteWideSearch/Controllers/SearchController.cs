@@ -21,6 +21,8 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
         private readonly SearchIndexOptions _indexConfig;
         private readonly ILogger<SearchController> _logger;
 
+        public const string HEALTHY_STATUS = "alive!";
+
         /// <summary>
         /// Creates a new instance of a Search Controller
         /// </summary>
@@ -101,5 +103,46 @@ namespace NCI.OCPL.Api.SiteWideSearch.Controllers
             }            
         }
 
+
+        /// <summary>
+        /// Provides an endpoint for checking that the various services which make up the API
+        /// (and thus the API itself) are all in a state where they can return information.
+        /// </summary>
+        /// <returns>The contents of SearchController.HEALTHY_STATUS ('alive!') if
+        /// all services are running. If unhealthy services are found, APIErrorException is thrown
+        /// with HTTPStatusCode set to 500.</returns>
+        [HttpGet("status")]
+        public string GetStatus()
+        {
+            // Use the cluster health API to verify that the Best Bets index is functioning.
+            // Maps to https://ncias-d1592-v.nci.nih.gov:9299/_cluster/health/bestbets?pretty (or other server)
+            //
+            // References:
+            // https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-health.html
+            // https://github.com/elastic/elasticsearch/blob/master/rest-api-spec/src/main/resources/rest-api-spec/api/cluster.health.json#L20
+            IClusterHealthResponse response = _elasticClient.ClusterHealth(hd =>
+            {
+                hd = hd
+                    .Index("autosg");
+
+                return hd;
+            });
+
+            if (!response.IsValid)
+            {
+                _logger.LogError("Error checking ElasticSearch health.");
+                _logger.LogError("Returned debug info: {0}.", response.DebugInformation);
+                throw new APIErrorException(500, "Errors Occurred.");
+            }
+
+            if (response.Status != "green"
+                && response.Status != "yellow")
+            {
+                _logger.LogError("Elasticsearch not healthy. Index status is '{0}'.", response.Status);
+                throw new APIErrorException(500, "Service not healthy.");
+            }
+
+            return HEALTHY_STATUS;
+        }
     }
 }

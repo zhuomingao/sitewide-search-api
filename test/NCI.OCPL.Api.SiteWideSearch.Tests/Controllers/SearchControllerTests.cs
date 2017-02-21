@@ -417,4 +417,42 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.SearchControllerTests
         }
 
     }
+
+    public class HealthCheck : TestControllerBase
+    {
+        [Theory]
+        [InlineData("ESHealthData/green.json")]
+        [InlineData("ESHealthData/yellow.json")]
+        public void GetStatus_Healthy(string datafile)
+        {
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(datafile),
+                config,
+                NullLogger<SearchController>.Instance
+            );
+
+            string status = ctrl.GetStatus();
+            Assert.Equal(AutosuggestController.HEALTHY_STATUS, status, ignoreCase: true);
+        }
+
+        [Theory]
+        [InlineData("ESHealthData/red.json")]
+        [InlineData("ESHealthData/unexpected.json")]   // i.e. "Unexpected color"
+        public void GetStatus_Unhealthy(string datafile)
+        {
+            IOptions<SearchIndexOptions> config = GetMockSearchIndexConfig();
+            SearchController ctrl = new SearchController(
+                ElasticTools.GetInMemoryElasticClient(datafile),
+                config,
+                NullLogger<SearchController>.Instance
+            );
+
+            APIErrorException ex = Assert.Throws<APIErrorException>(() => ctrl.GetStatus());
+
+            Assert.Equal(500, ex.HttpStatusCode);
+        }
+
+    }
+
 }
