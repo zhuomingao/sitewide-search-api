@@ -1,17 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 
 using Microsoft.Extensions.Logging.Testing;
+using Microsoft.Extensions.Options;
 
-using Elasticsearch.Net;
 using Nest;
-
-using Newtonsoft.Json.Linq;
-
-using Moq;
 using Xunit;
 
 using NCI.OCPL.Utils.Testing;
@@ -46,7 +38,8 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
     /// Defines a class with all of the data mapping tests to ensure we are able to correctly 
     /// map the responses from ES into the correct response from the AutosuggestController
     /// </summary>
-    public class Get_DataMapTests {
+    public class Get_DataMapTests : AutosuggestTests_Base
+    {
 
         /// <summary>
         /// Helper method to build a SearchTemplateRequest for testing purposes.
@@ -86,8 +79,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController ctrl = new AutosuggestController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -110,8 +105,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController ctrl = new AutosuggestController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -133,8 +130,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController ctrl = new AutosuggestController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -157,8 +156,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController ctrl = new AutosuggestController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -187,8 +188,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController ctrl = new AutosuggestController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -210,8 +213,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
         {
             string testFile = "AutoSuggest.CGov.En.BreastCancer.json";
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController ctrl = new AutosuggestController(
                 ElasticTools.GetInMemoryElasticClient(testFile),
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -249,8 +254,10 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
                     } // We don't care what the response looks like.
                 );
 
+            IOptions<AutosuggestIndexOptions> config = GetMockedAutosuggestIndexOptions();
             AutosuggestController controller = new AutosuggestController(
                 client,
+                config,
                 NullLogger<AutosuggestController>.Instance
             );
 
@@ -279,185 +286,5 @@ namespace NCI.OCPL.Api.SiteWideSearch.Tests.AutoSuggestControllerTests
 
     }
 
-    /// <summary>
-    /// Defines tests of AutosuggestController error behavior.
-    /// <remarks>
-    /// </remarks>
-    /// </summary>
-    public class ErrorTests
-    {
-
-
-        [Theory]
-        [InlineData(403)] // Forbidden
-        [InlineData(404)] // Not Found
-        [InlineData(500)] // Server error
-        /// <summary>
-        /// Verify that controller throws the correct exception when the
-        /// ES client reports an error.
-        /// </summary>
-        /// <param name="offset">Offset into the list of results of the item to check.</param>
-        /// <param name="expectedTerm">The expected term text</param>
-        public void Handle_Failed_Query(int errorCode)
-        {
-            AutosuggestController ctrl = new AutosuggestController(
-                ElasticTools.GetErrorElasticClient(errorCode),
-                NullLogger<AutosuggestController>.Instance
-            );
-
-            Assert.Throws<APIErrorException>(
-                // Parameters don't matter, and for this test we don't care about saving the results
-                () =>
-                    ctrl.Get (
-                        "cgov",
-                        "en",
-                        "breast cancer"
-                    )
-                );
-        }
-
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("        ")] // Spaces
-        [InlineData("\t")]
-        [InlineData("\n")]
-        [InlineData("\r")]
-        /// <summary>
-        /// Verify that controller throws the correct exception when no collection is specified.
-        /// </summary>
-        /// <param name="collectionValue">A string specifying the collection to search.</param>
-        public void Get_EmptyCollection_ReturnsError(String collectionValue)
-        {
-            // The file needs to exist so it can be deserialized, but we don't make
-            // use of the actual content. 
-            string testFile = "Search.CGov.En.BreastCancer.json";
-
-            AutosuggestController ctrl = new AutosuggestController(
-                ElasticTools.GetInMemoryElasticClient(testFile),
-                NullLogger<AutosuggestController>.Instance
-            );
-
-            Exception ex = Assert.Throws<APIErrorException>(
-                // Parameters don't matter, and for this test we don't care about saving the results
-                () =>
-                    ctrl.Get (
-                        collectionValue,
-                        "en",
-                        "some term"
-                    )
-                );
-
-            // Search without a collection should report bad request (400) 
-            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
-        }
-
-
-        [Theory]
-        [InlineData("english")] // Language that "sounds" right but isn't.
-        [InlineData("spanish")]
-        [InlineData(null)]
-        [InlineData("")] // Empty string
-        [InlineData("        ")] // Spaces
-        [InlineData("\t")]
-        [InlineData("\n")]
-        [InlineData("\r")]
-        /// <summary>
-        /// Verify that controller throws the correct exception when an invalid language   is specified.
-        /// </summary>
-        /// <param name="termValue">A string the text to search for.</param>
-        public void Get_InvalidLanguage_ReturnsError(string language)
-        {
-            string testFile = "Search.CGov.En.BreastCancer.json";
-
-            AutosuggestController ctrl = new AutosuggestController(
-                ElasticTools.GetInMemoryElasticClient(testFile),
-                NullLogger<AutosuggestController>.Instance
-            );
-
-            Exception ex = Assert.Throws<APIErrorException>(
-                // Parameters don't matter, and for this test we don't care about saving the results
-                () =>
-                    ctrl.Get (
-                        "cgov",
-                        language,
-                        "some term"
-                    )
-                );
-
-            // Search without something to search for should report bad request (400) 
-            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
-        }
-
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")] // Empty string
-        [InlineData("        ")] // Spaces
-        [InlineData("\t")]
-        [InlineData("\n")]
-        [InlineData("\r")]
-        /// <summary>
-        /// Verify that controller throws the correct exception when no search text is specified.
-        /// </summary>
-        /// <param name="termValue">A string the text to search for.</param>
-        public void Get_EmptyTerm_ReturnsError(String termValue)
-        {
-            string testFile = "Search.CGov.En.BreastCancer.json";
-
-            AutosuggestController ctrl = new AutosuggestController(
-                ElasticTools.GetInMemoryElasticClient(testFile),
-                NullLogger<AutosuggestController>.Instance
-            );
-
-            Exception ex = Assert.Throws<APIErrorException>(
-                // Parameters don't matter, and for this test we don't care about saving the results
-                () =>
-                    ctrl.Get (
-                        "some collection",
-                        "en",
-                        termValue
-                    )
-                );
-
-            // Search without something to search for should report bad request (400) 
-            Assert.Equal(400, ((APIErrorException)ex).HttpStatusCode);
-        }
-
-    }
-
-    public class HealthCheck
-    {
-        [Theory]
-        [InlineData("ESHealthData/green.json")]
-        [InlineData("ESHealthData/yellow.json")]
-        public void GetStatus_Healthy(string datafile)
-        {
-            AutosuggestController ctrl = new AutosuggestController(
-                ElasticTools.GetInMemoryElasticClient(datafile),
-                NullLogger<AutosuggestController>.Instance
-            );
-
-            string status = ctrl.GetStatus();
-            Assert.Equal(AutosuggestController.HEALTHY_STATUS, status, ignoreCase: true);
-        }
-
-        [Theory]
-        [InlineData("ESHealthData/red.json")]
-        [InlineData("ESHealthData/unexpected.json")]   // i.e. "Unexpected color"
-        public void GetStatus_Unhealthy(string datafile)
-        {
-            AutosuggestController ctrl = new AutosuggestController(
-                ElasticTools.GetInMemoryElasticClient(datafile),
-                NullLogger<AutosuggestController>.Instance
-            );
-
-            APIErrorException ex = Assert.Throws<APIErrorException>(() => ctrl.GetStatus());
-
-            Assert.Equal(500, ex.HttpStatusCode);
-        }
-
-    }
 
 }
