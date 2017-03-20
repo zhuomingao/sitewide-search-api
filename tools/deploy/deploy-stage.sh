@@ -91,6 +91,9 @@ do
             -e Elasticsearch__Servers=\"${ELASTICSEARCH_SERVERS}\" \
             -e Elasticsearch__Userid=\"${ELASTICSEARCH_SEARCH_USER}\" \
             -e Elasticsearch__Password=\"${ELASTICSEARCH_SEARCH_PASSWORD}\" \
+            --log-driver=syslog \
+            --log-opt syslog-address=udp://127.0.0.1:514 \
+            --log-opt tag=sitewidesearch \
             ${imageName}"
 
         # Create and launch script for running the API
