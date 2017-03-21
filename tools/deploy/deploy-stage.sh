@@ -93,7 +93,7 @@ do
             -e Elasticsearch__Password=\"${ELASTICSEARCH_SEARCH_PASSWORD}\" \
             --log-driver=syslog \
             --log-opt syslog-address=udp://127.0.0.1:514 \
-            --log-opt tag=sitewidesearch \
+            --log-opt tag=sitewidesearchapi \
             ${imageName}"
 
         # Create and launch script for running the API
