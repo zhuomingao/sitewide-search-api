@@ -1,9 +1,9 @@
 FROM nciwebcomm/dotnet-docker:runtime
 ARG version_number
-RUN yum -y install shadow-utils && \
-groupadd -r containeruser && \
-useradd -r  -g containeruser -d /home/containeruser -ms /sbin/nologin -c "Docker container user" containeruser && \
-chown -R containeruser:containeruser /home/containeruser
+RUN yum -y install shadow-utils \
+	&& groupadd -r containeruser \
+	&& useradd -r  -g containeruser -d /home/containeruser -ms /sbin/nologin -c "Docker container user" containeruser \
+	&& chown -R containeruser:containeruser /home/containeruser
 USER containeruser
 RUN curl -SL "https://github.com/NCIOCPL/sitewide-search-api/releases/download/$version_number/sitewide-search-api-$version_number.zip"  --output /home/containeruser/sitewide-search-api.zip \
     && mkdir -p   /home/containeruser/release \
