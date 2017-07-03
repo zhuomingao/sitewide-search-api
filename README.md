@@ -54,3 +54,17 @@ dotnet build # builds all projects (test are dependent on src)
 dotnet test #runs unit tests
 '''
 +
+
+## API URL
+Once site wide search has been deployed, the API may be accessed via a URL of the form
+
+```http://<<server_name>[:<<port_number>>/search/<<collection>>/<<language>>/<<search_string>>```
+Where:
+**<<server_name>>** is the host server name
+**<<port_number>>** is the (optional) port number
+**<collection>** is either "cgov" to get search results for the CancerGov site or "doc" to get results for a Division, Office, or Center site.
+**<language>** is either "en" or "es"  (and "es" is only allowed when the collection is "cgov")
+**<search_string>** is the URL-encoded string to search for.
+
+So, for example:
+```http://webapis.cancer.gov/search/cgov/en/tumor```
